@@ -2,6 +2,7 @@ import Vue from 'vue'
 import uView from 'uview-ui'
 import formRules from '@/utils/formRules'
 import setting from '@/setting'
+import { request } from '@/utils/_request'
 
 import divider from '@/components/divider'
 
@@ -14,6 +15,7 @@ Vue.component('divider', divider)
 
 Vue.config.productionTip = false
 
+Vue.prototype.$request = request
 Vue.prototype.$rules = formRules
 
 Vue.prototype.$baseUrl = setting.baseUrl

@@ -103,5 +103,6 @@ module.exports = {
     worker: true,
     getApp: true,
     uni: true,
+    uniCloud: true
   },
 }
