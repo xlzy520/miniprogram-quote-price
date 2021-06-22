@@ -1,24 +1,21 @@
 <template>
 <!--pages/mine/index.wxml-->
 <view class="app-container">
-  <view class="user-info ftf layout-qz">
+  <view class="user-info ftf layout-items-center">
     <view class="avatar">
-      <image :src="userinfo.headerPath || '/static/icon/mine/icon-avatar.png'"
+      <image :src="userInfo.avatar || '/static/icon/avatar.png'"
              mode="widthFix"></image>
-      <view class="txt f24 layout-rc" @click="editUserInfo">编辑</view>
+<!--      <view class="txt f24 layout-abs-center" @click="editUserInfo">编辑</view>-->
     </view>
     <view class="info">
-      <view v-if="userinfo.phone">
+      <view v-if="userInfo.phone">
         <view class="nick-name">
-          <text class="f34">{{ userinfo.userName || '暂无' }}</text>
+          <text class="text-base">{{ userInfo.userName || '暂无' }}</text>
           <image src="/static/icon/mine/icon-user-tag.png" mode="widthFix"></image>
         </view>
-        <view class="account c9 f26">账号：{{ userinfo.phone || '********' }}</view>
+        <view class="account text-gray-500 text-xs">手机号：{{ userInfo.phone || '********' }}</view>
       </view>
-      <view v-else class="f32 lh-45 layout-cc to-login-btn" @click="toLogin">立即登录</view>
-    </view>
-    <view class="scan" @click="scan">
-      <u-image src="/static/icon/mine/scan.png" width="55" height="55" />
+      <view v-else class="text-base layout-col-center to-login-btn" @click="toLogin">立即登录</view>
     </view>
   </view>
   <view class="ctr-group">
@@ -34,7 +31,7 @@
       <u-icon name="arrow-right" color="#CCC"></u-icon>
     </view>
   </view>
-  <view v-if="userinfo.phone" class="">
+  <view v-if="userInfo.phone" class="">
     <u-button class="confirm-btn logout" @click="logout">
       退出登录
     </u-button>
@@ -43,12 +40,11 @@
 </template>
 
 <script>
-import userApi from 'api/user'
 
 export default {
   data() {
     return {
-      userinfo: {
+      userInfo: {
         phone: '12312'
       },
       navList: [
@@ -59,32 +55,32 @@ export default {
           icon: '/static/icon/mine/icon-user-info.png',
         },
         {
-          title: '我的签到',
-          desc: '预约活动签到',
+          title: '我的报价',
+          desc: '我的报价记录',
           url: '/pages/mine/mySign',
           icon: '/static/icon/mine/icon-sign.png',
         },
+        // {
+        //   title: '我的预约',
+        //   desc: '我的预约门票',
+        //   url: '/pages/mine/myAppoint',
+        //   icon: '/static/icon/mine/icon-appoint.png',
+        // },
+        // {
+        //   title: '我的收藏',
+        //   desc: '我感兴趣的视频内容',
+        //   url: '/pages/mine/myFavorite',
+        //   icon: '/static/icon/mine/icon-collection.png',
+        // },
+        // {
+        //   title: '我的活动',
+        //   desc: '我预约的活动',
+        //   url: '/pages/mine/myActivity',
+        //   icon: '/static/icon/mine/icon-export-apply.png',
+        // },
         {
-          title: '我的预约',
-          desc: '我的预约门票',
-          url: '/pages/mine/myAppoint',
-          icon: '/static/icon/mine/icon-appoint.png',
-        },
-        {
-          title: '我的收藏',
-          desc: '我感兴趣的视频内容',
-          url: '/pages/mine/myFavorite',
-          icon: '/static/icon/mine/icon-collection.png',
-        },
-        {
-          title: '我的活动',
-          desc: '我预约的活动',
-          url: '/pages/mine/myActivity',
-          icon: '/static/icon/mine/icon-export-apply.png',
-        },
-        {
-          title: '关于科技馆',
-          desc: '了解科技馆更多信息',
+          title: '关于小程序',
+          desc: '了解小程序更多信息',
           url: '/pages/mine/aboutUs',
           icon: '/static/icon/mine/icon-about.png',
         }
@@ -107,7 +103,7 @@ export default {
       const userInfoStr = uni.getStorageSync('userInfo')
       if (userInfoStr) {
         const userInfo = JSON.parse(userInfoStr)
-        this.userinfo = {
+        this.userInfo = {
           ...userInfo,
           avatarUrl: this.$imgBaseUrl + userInfo.headerPath,
         }
@@ -135,7 +131,7 @@ export default {
       uni.navigateTo({ url: '/pages/login/index' })
     },
     toPage(item) {
-      if (!this.userinfo.phone) {
+      if (!this.userInfo.phone) {
         this.toLogin()
         return
       }
@@ -143,60 +139,6 @@ export default {
     },
     editUserInfo() {
       uni.navigateTo({ url: '/pages/mine/myInfo' })
-    },
-    applyPlus() {
-      userApi.applyPlus().then(res => {
-        uni.showToast({ title: '申请成为会员成功', icon: 'none' })
-      })
-    },
-    toVip() {
-      userApi.findApplyPlusStatus().then(res => {
-        // const text = VipAuditStatusEnum[data.auditStatus]
-        switch (res.auditStatus) {
-          case 0:
-            this.applyPlus()
-            break
-          case 1:
-            uni.showToast({ title: '申请中' })
-            break
-          case 2:
-            uni.showModal({
-              title: '审核驳回',
-              content: res.auditResult,
-              success: () => {
-                this.applyPlus()
-              },
-            })
-            break
-          case 3:
-            this.userinfo.plusStatus = 1
-            this.findUserInfo()
-            this.checkUserInfo()
-            break
-          default:
-            break
-        }
-      })
-      // const data = {
-      //   // 0非会员，1会员
-      //   auditStatus: 0,
-      //   auditResult: '因为。。。',
-      // }
-    },
-    applyTo(type) {
-      const url = type ? '/pages/mine/applyExpert' : '/pages/mine/applyVolunteer'
-      uni.navigateTo({ url })
-    },
-    scan() {
-      uni.scanCode({
-        success: (res) => {
-          uni.navigateTo({
-            url: `/pages/exhibition-detail/index?id=${res.result}`,
-          })
-          console.log('条码类型：' + res.scanType)
-          console.log('条码内容：' + res.result)
-        },
-      })
     },
   },
 }
@@ -249,9 +191,6 @@ export default {
     align-items: center;
     color: #333;
     font-weight: bold;
-  }
-  .scan{
-
   }
 }
 .apply-wrapper{

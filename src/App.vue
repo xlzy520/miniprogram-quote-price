@@ -1,15 +1,24 @@
 <script>
-	export default {
-		onLaunch: function() {
-			console.log('App Launch')
-		},
-		onShow: function() {
-			console.log('App Show')
-		},
-		onHide: function() {
-			console.log('App Hide')
-		}
-	}
+export default {
+  onLaunch() {
+    // console.log('App Launch')
+    this.setLocale()
+  },
+  onShow() {
+    // console.log('App Show')
+  },
+  onHide() {
+    // console.log('App Hide')
+  },
+  methods: {
+    setLocale() {
+      const locale = uni.getStorageSync('lang')
+      if (locale) {
+        this.$i18n.locale = locale
+      }
+    },
+  },
+}
 </script>
 
 <style>

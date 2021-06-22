@@ -18,12 +18,18 @@
                        left-icon="/static/login/account.png" placeholder="请输入手机号"
                        maxlength="11"></u-input>
             </u-form-item>
-            <u-form-item prop="mobile" left-icon="/static/login/account.png"
+            <u-form-item prop="mobile" left-icon="/static/login/desc.png"
                          :left-icon-style="leftIconStyle">
-              <u-input v-model="loginParams.desc" clearable
-                       left-icon="/static/login/account.png" placeholder="请输入激活申请说明"
+              <u-input v-model="loginParams.desc" clearable placeholder="请输入激活申请说明"
                        maxlength="120"></u-input>
             </u-form-item>
+<!--            <u-form-item prop="product_type" left-icon="/static/login/future.png"-->
+<!--                         :left-icon-style="leftIconStyle">-->
+<!--              <u-radio-group v-model="loginParams.product_type">-->
+<!--                <u-radio :name="0">期货</u-radio>-->
+<!--                <u-radio :name="1">现货</u-radio>-->
+<!--              </u-radio-group>-->
+<!--            </u-form-item>-->
             <u-form-item prop="smsCode" left-icon="/static/login/sms-edit.png"
                          :left-icon-style="leftIconStyle">
               <u-input placeholder="请输入验证码" v-model="loginParams.code" maxlength="6"></u-input>
@@ -47,7 +53,7 @@
 <!--            </u-form-item>-->
           </u-form>
         </view>
-        <u-button class="confirm-btn" :disabled="!smsCodeBtnDisabled" :loading="loading" @click="toLogin">
+        <u-button class="confirm-btn" :disabled="!loginParams.code" :loading="loading" @click="toLogin">
           登录
         </u-button>
 <!--        <view class="login-footer">-->
@@ -74,6 +80,7 @@ export default {
         mobile: '13588043792',
         code: '123456',
         desc: '',
+        product_type: 1,
       },
       pwdType: 'password',
       loading: false,
@@ -168,14 +175,20 @@ export default {
             ...this.loginParams,
             deviceId: getDeviceUUID(),
           }).then(res => {
+            res = res.data
+            const userInfo = res.userInfo
             if (res.type === 'register') {
               this.$toast('注册成功, 待激活状态, 管理员将尽快进行审核。')
-            } else if (res.status === 1) {
+            } else if (userInfo.status === 0) {
               this.setLocal(res)
-              uni.switchTab({ url: '/pages/index/index' })
-            } else if (res.status === 0) {
+              if (userInfo.product_type === undefined) {
+                uni.navigateTo({ url: '/pages/chooseProductType/index' })
+              } else {
+                uni.switchTab({ url: '/pages/index/index' })
+              }
+            } else if (userInfo.status === 2) {
               this.$toast('待激活状态, 管理员将尽快进行审核。')
-            } else if (res.status === 2) {
+            } else if (userInfo.status === 1) {
               this.$toast('审核拒绝, 账号已停用。')
             }
           }).finally(() => {

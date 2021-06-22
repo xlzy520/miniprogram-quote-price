@@ -1,14 +1,15 @@
 const {
-	Controller
+  Controller,
 } = require('uni-cloud-router')
-module.exports = class RoleController extends Controller {
-	async remove() {
-		const {
-			id
-		} = this.ctx.data
 
-		return this.ctx.uniID.deleteRole({
-			roleID: id
-		})
-	}
+module.exports = class RoleController extends Controller {
+  async remove() {
+    const {
+      id,
+    } = this.ctx.data
+
+    return this.ctx.uniID.deleteRole({
+      roleID: id,
+    })
+  }
 }

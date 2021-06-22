@@ -1,5 +1,6 @@
 function reLaunchToLogin(code) {
   if (typeof code === 'string' && code.indexOf('TOKEN_INVALID') === 0) {
+    uni.showToast({ title: 'token已过期', icon: "none" })
     uni.reLaunch({
       url: '/pages/login/index',
     })
