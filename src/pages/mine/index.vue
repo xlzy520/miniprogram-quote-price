@@ -1,0 +1,296 @@
+<template>
+<!--pages/mine/index.wxml-->
+<view class="app-container">
+  <view class="user-info ftf layout-qz">
+    <view class="avatar">
+      <image :src="userinfo.headerPath || '/static/icon/mine/icon-avatar.png'"
+             mode="widthFix"></image>
+      <view class="txt f24 layout-rc" @click="editUserInfo">编辑</view>
+    </view>
+    <view class="info">
+      <view v-if="userinfo.phone">
+        <view class="nick-name">
+          <text class="f34">{{ userinfo.userName || '暂无' }}</text>
+          <image src="/static/icon/mine/icon-user-tag.png" mode="widthFix"></image>
+        </view>
+        <view class="account c9 f26">账号：{{ userinfo.phone || '********' }}</view>
+      </view>
+      <view v-else class="f32 lh-45 layout-cc to-login-btn" @click="toLogin">立即登录</view>
+    </view>
+    <view class="scan" @click="scan">
+      <u-image src="/static/icon/mine/scan.png" width="55" height="55" />
+    </view>
+  </view>
+  <view class="ctr-group">
+    <view class="ctr-item layout-slide" v-for="item in navList" :key="item.title"
+          @click="toPage(item)">
+      <view class="layout-slide">
+        <image :src="item.icon" mode="widthFix"></image>
+        <view class="content">
+          <view class="list-item-title f30">{{item.title}}</view>
+          <view class="c6 f24">{{item.desc}}</view>
+        </view>
+      </view>
+      <u-icon name="arrow-right" color="#CCC"></u-icon>
+    </view>
+  </view>
+  <view v-if="userinfo.phone" class="">
+    <u-button class="confirm-btn logout" @click="logout">
+      退出登录
+    </u-button>
+  </view>
+</view>
+</template>
+
+<script>
+import userApi from 'api/user'
+
+export default {
+  data() {
+    return {
+      userinfo: {
+        phone: '12312'
+      },
+      navList: [
+        {
+          title: '我的信息',
+          desc: '姓名、手机号、地址管理',
+          url: '/pages/mine/myInfo',
+          icon: '/static/icon/mine/icon-user-info.png',
+        },
+        {
+          title: '我的签到',
+          desc: '预约活动签到',
+          url: '/pages/mine/mySign',
+          icon: '/static/icon/mine/icon-sign.png',
+        },
+        {
+          title: '我的预约',
+          desc: '我的预约门票',
+          url: '/pages/mine/myAppoint',
+          icon: '/static/icon/mine/icon-appoint.png',
+        },
+        {
+          title: '我的收藏',
+          desc: '我感兴趣的视频内容',
+          url: '/pages/mine/myFavorite',
+          icon: '/static/icon/mine/icon-collection.png',
+        },
+        {
+          title: '我的活动',
+          desc: '我预约的活动',
+          url: '/pages/mine/myActivity',
+          icon: '/static/icon/mine/icon-export-apply.png',
+        },
+        {
+          title: '关于科技馆',
+          desc: '了解科技馆更多信息',
+          url: '/pages/mine/aboutUs',
+          icon: '/static/icon/mine/icon-about.png',
+        }
+
+      ],
+    }
+  },
+
+  components: {
+  },
+  props: {},
+  onShow(options) {
+    // this.checkUserInfo()
+  },
+  methods: {
+    /**
+     * 判断是否有用户信息，无则自动填入微信信息
+     */
+    checkUserInfo() {
+      const userInfoStr = uni.getStorageSync('userInfo')
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr)
+        this.userinfo = {
+          ...userInfo,
+          avatarUrl: this.$imgBaseUrl + userInfo.headerPath,
+        }
+      }
+    },
+    findUserInfo() {
+      // findUserInfo(true)
+    },
+    logout() {
+      const localAccount = uni.getStorageSync('account')
+      this.$request('user/logout', {
+
+      }).then(res => {
+        console.log(res)
+        uni.showLoading({ title: '退出登录中...' })
+        uni.setStorageSync('accessToken', res.accessToken)
+      }).finally(() => {
+        this.loading = false
+        // uni.removeStorageSync('userInfo')
+        this.toLogin()
+        uni.hideLoading()
+      })
+    },
+    toLogin() {
+      uni.navigateTo({ url: '/pages/login/index' })
+    },
+    toPage(item) {
+      if (!this.userinfo.phone) {
+        this.toLogin()
+        return
+      }
+      uni.navigateTo({ url: item.url })
+    },
+    editUserInfo() {
+      uni.navigateTo({ url: '/pages/mine/myInfo' })
+    },
+    applyPlus() {
+      userApi.applyPlus().then(res => {
+        uni.showToast({ title: '申请成为会员成功', icon: 'none' })
+      })
+    },
+    toVip() {
+      userApi.findApplyPlusStatus().then(res => {
+        // const text = VipAuditStatusEnum[data.auditStatus]
+        switch (res.auditStatus) {
+          case 0:
+            this.applyPlus()
+            break
+          case 1:
+            uni.showToast({ title: '申请中' })
+            break
+          case 2:
+            uni.showModal({
+              title: '审核驳回',
+              content: res.auditResult,
+              success: () => {
+                this.applyPlus()
+              },
+            })
+            break
+          case 3:
+            this.userinfo.plusStatus = 1
+            this.findUserInfo()
+            this.checkUserInfo()
+            break
+          default:
+            break
+        }
+      })
+      // const data = {
+      //   // 0非会员，1会员
+      //   auditStatus: 0,
+      //   auditResult: '因为。。。',
+      // }
+    },
+    applyTo(type) {
+      const url = type ? '/pages/mine/applyExpert' : '/pages/mine/applyVolunteer'
+      uni.navigateTo({ url })
+    },
+    scan() {
+      uni.scanCode({
+        success: (res) => {
+          uni.navigateTo({
+            url: `/pages/exhibition-detail/index?id=${res.result}`,
+          })
+          console.log('条码类型：' + res.scanType)
+          console.log('条码内容：' + res.result)
+        },
+      })
+    },
+  },
+}
+</script>
+<style lang="scss">
+  .app-container{
+    padding: 30upx 40upx;
+  }
+.user-info {
+  .avatar {
+    position: relative;
+    margin-right: 28rpx;
+    width: 110rpx;
+    height: 110rpx;
+    border-radius: 24rpx;
+    overflow: hidden;
+    image {
+      width: 100%;
+      height: 100%;
+    }
+    .txt {
+      position: absolute;
+      padding: 3rpx 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      color: #fff;
+      background: rgba(86, 86, 86, 0.6);
+    }
+  }
+  .info {
+    flex: 1;
+    image {
+      margin-left: 34rpx;
+      width: 37rpx;
+      height: 37rpx;
+    }
+  }
+  .to-login-btn{
+    width: 178upx;
+    height: 68upx;
+    background: #DBFCFF;
+    border-radius: 6upx;
+    color: #39D5E3;
+    line-height: 45px;
+  }
+  .nick-name {
+    margin-bottom: 6rpx;
+    display: flex;
+    align-items: center;
+    color: #333;
+    font-weight: bold;
+  }
+  .scan{
+
+  }
+}
+.apply-wrapper{
+  width: 668upx;
+  margin: auto;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 30upx 0px rgba(0,145,255,0.14);
+  border-radius: 24upx;
+  padding: 30upx 100upx;
+  line-height: 80upx;
+  margin-top: 55upx;
+  .apply-item{
+    font-size: 32upx;
+    color: #333;
+    line-height: 45upx;
+  }
+  .apply-item-line{
+    width: 1px;
+    background: #E4E4E4;
+    height: 80upx;
+  }
+}
+
+.ctr-group {
+  margin-top: 40rpx;
+  padding: 0 10upx;
+}
+
+.ctr-group .ctr-item {
+  padding: 25rpx 0;
+}
+
+.ctr-group .ctr-item image {
+  margin-right: 36rpx;
+  width: 55rpx;
+  height: 55rpx;
+}
+
+.ctr-group .ctr-item .list-item-title {
+  margin-bottom: 7rpx;
+}
+</style>

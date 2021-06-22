@@ -20,6 +20,12 @@
       "style": {
         "navigationBarTitleText": "表单"
       }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
     }
   ],
   "tabBar": {
@@ -35,6 +41,12 @@
       {
         "pagePath": "pages/form/index",
         "text": "表单",
+        "iconPath": "/static/tabBar/icon-tabbar-mine.png",
+        "selectedIconPath": "/static/tabBar/icon-tabbar-mine-selected.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
         "iconPath": "/static/tabBar/icon-tabbar-mine.png",
         "selectedIconPath": "/static/tabBar/icon-tabbar-mine-selected.png"
       }

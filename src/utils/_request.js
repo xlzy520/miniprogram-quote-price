@@ -43,17 +43,20 @@ export function request(action, data, {
       tokenExpired,
     } = result
     if (token && tokenExpired) {
-      store.commit('user/SET_TOKEN', {
-        token,
-        tokenExpired,
-      })
+      // store.commit('user/SET_TOKEN', {
+      //   token,
+      //   tokenExpired,
+      // })
     }
     return Promise.resolve(result)
   }).catch(err => {
-    showModal && uni.showModal({
-      content: err.message || '请求服务失败',
-      showCancel: false,
-    })
+    if (showModal) {
+      uni.showToast({
+        title: err.message || '请求服务失败',
+        showCancel: false,
+        icon: 'none'
+      })
+    }
     return Promise.reject(err)
   })
 }

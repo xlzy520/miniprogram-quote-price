@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import uView from 'uview-ui'
+import i18n from '@/locale/index'
+
 import formRules from '@/utils/formRules'
 import setting from '@/setting'
 import { request } from '@/utils/_request'
@@ -21,7 +23,7 @@ Vue.prototype.$rules = formRules
 Vue.prototype.$baseUrl = setting.baseUrl
 Vue.prototype.$uploadUrl = setting.baseUrl + 'api/common/file/upload'
 
-Vue.prototype.$showToast = (title, icon = 'none', otherOptions) => {
+Vue.prototype.$toast = (title, icon = 'none', otherOptions) => {
   uni.showToast({ title, icon, ...otherOptions })
 }
 
@@ -29,6 +31,7 @@ App.mpType = 'app'
 Vue.use(uView)
 
 const app = new Vue({
+  i18n,
   ...App,
 })
 app.$mount()

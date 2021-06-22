@@ -1,61 +1,90 @@
 <template>
-	<view class="layout-col-slide mt-3">
-    <view class="w-1_3 px-3 m-auto text-center text-pink-400 font-medium">百分比宽度</view>
-    <view class="w-24 m-auto truncate text-2xl bg-blue-300">文字溢出省略</view>
-    <tab-with-data-list :tabs="tabList" list-type="appoint-activity" :list-data="list"
-                        @tabChange="tabChange" @itemClick="goDetail" />
+  <view class="p-3 product-home">
+    <u-search v-model="search"></u-search>
+    <unicloud-db ref="udb" @load="tableLoad" collection="uni-id-product" :options="pageOptions"
+                 :where="where" field="_id,name,imgUrls,price,status,create_date"
+                 page-data="add" :orderby="orderby" :getcount="true"
+                 :page-size="pageOptions.size"
+                 :page-current="pageOptions.current"
+                 v-slot:default="{data,pagination,loading,error,hasMore}">
+      <div class="layout-slide flex-wrap pt-3 product-list">
+        <view v-for="(item, index) in data" :key="index" class="product-item"
+              @click="handleItem(item)">
+          <u-image :src="item.imgUrls[0]" width="320rpx" height="320rpx" mode=""></u-image>
+          <view class="text">
+            <view class="title text-base">{{ item.name }}</view>
+          </view>
+        </view>
+      </div>
+    </unicloud-db>
   </view>
 </template>
 
 <script>
-import TabWithDataList from '@/components/TabWithDataList'
-import { ActivityStatusEnum } from '@/utils/enum'
-import listApi from '@/api/list'
-import { getList } from '@/utils/mixins'
-
 export default {
-  mixins: [getList],
-  components: {
-    TabWithDataList,
+  name: '',
+  props: {
+    list: {
+      type: Array,
+      default: () => ([]),
+    },
   },
   data() {
     return {
-      current: 0,
-      tabList: [{ name: '标题1' }, { name: '标题2' }, { name: '标题3' }, { name: '标题4' }],
-      list: [],
+      search: '',
+      where: '',
+      orderby: 'create_date',
+      pageOptions: {
+        size: 20,
+        current: 1,
+      },
     }
   },
-  onLoad() {
-    this.tabList = ActivityStatusEnum.map(v => ({ name: v }))
-  },
   methods: {
-    tabChange(index) {
-      this.current = index
-      this.pageOption.pageNum = 1
-      this.getList(true)
+    handleItem(item) {
+      wx.navigateTo({ url: '/pages/exhibition-detail/index?id=' + item.id })
     },
-    getList(isRefresh) {
-      uni.showLoading({ title: '数据加载中...' })
-      listApi.list({
-        status: this.current,
-        ...this.pageOption,
-      }).then(res => {
-        this.handleResFromMixin(res, v => ({
-          ...v,
-          imgUrl: v.img, // 主要是格式化列表字段，比如时间、图片链接、转换的统一处理
-        }), isRefresh)
-      }).finally(() => {
-        uni.hideLoading()
-        uni.stopPullDownRefresh()
+    tableLoad(data, ended) {
+      // this.expData = data.map(v => ({
+      //   ...v,
+      //   create_date: this.$formatDate(v.create_date)
+      // }))
+      // 仅导出当前页
+    },
+    loadData(clear = true) {
+      this.$refs.udb.loadData({
+        clear,
       })
     },
-    goDetail(item) {
-      uni.navigateTo({ url: `/pages/active-detail/index?id=${item.id}` })
-    },
   },
+
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+
+.product-list {
+  .product-item {
+    margin-bottom: 18rpx;
+    padding-bottom: 36rpx;
+    width: calc(50% - 15rpx);
+    overflow: hidden;
+    border-radius: 14rpx;
+    .text{
+      padding-left: 18upx;
+    }
+    .title {
+      padding: 36rpx 0 6rpx;
+      color: #333;
+      .desc {
+        color: #999999;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    }
+
+  }
+}
 
 </style>

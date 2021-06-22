@@ -3,7 +3,7 @@
     <login-top />
     <view class="tabs">
       <view class="tab-item">
-        <view class="item-text">验证码登录</view>
+        <view class="item-text">{{ $t('index.smsLogin') }}</view>
         <view class="item-line"></view>
       </view>
 
@@ -14,11 +14,15 @@
           <u-form :model="loginParams" :rules="rules" ref="uForm" class="" :border-bottom="false">
             <u-form-item prop="mobile" left-icon="/static/login/account.png"
                          :left-icon-style="leftIconStyle">
-<!--              <u-input v-model="loginParams.account" clearable-->
-<!--                       left-icon="/static/login/account.png" placeholder="请输入手机号"></u-input>-->
               <u-input v-model="loginParams.mobile" type="number" clearable
                        left-icon="/static/login/account.png" placeholder="请输入手机号"
                        maxlength="11"></u-input>
+            </u-form-item>
+            <u-form-item prop="mobile" left-icon="/static/login/account.png"
+                         :left-icon-style="leftIconStyle">
+              <u-input v-model="loginParams.desc" clearable
+                       left-icon="/static/login/account.png" placeholder="请输入激活申请说明"
+                       maxlength="120"></u-input>
             </u-form-item>
             <u-form-item prop="smsCode" left-icon="/static/login/sms-edit.png"
                          :left-icon-style="leftIconStyle">
@@ -43,7 +47,7 @@
 <!--            </u-form-item>-->
           </u-form>
         </view>
-        <u-button class="confirm-btn" :disabled="loading" :loading="loading" @click="toLogin">
+        <u-button class="confirm-btn" :disabled="!smsCodeBtnDisabled" :loading="loading" @click="toLogin">
           登录
         </u-button>
 <!--        <view class="login-footer">-->
@@ -68,16 +72,16 @@ export default {
     return {
       loginParams: {
         mobile: '13588043792',
-        code: '1234',
+        code: '123456',
+        desc: '',
       },
       pwdType: 'password',
       loading: false,
       codeSeconds: 0, // 验证码发送时间间隔
       loginByPass: true,
-      smsCodeBtnDisabled: true,
+      smsCodeBtnDisabled: false,
       userInfo: null,
       interval: null,
-      tabCurrentIndex: 0,
       rules: {
         mobile: [
           {
@@ -91,22 +95,14 @@ export default {
             trigger: ['change', 'blur'],
           }
         ],
-        password: [
+        desc: [
           {
-            min: 6,
-            message: '密码不能少于6个字',
-            trigger: 'change',
+            required: true,
+            message: '请输入手机号',
+            trigger: ['change', 'blur'],
           }
         ],
       },
-      typeList: [
-        {
-          text: '登录',
-        },
-        {
-          text: '注册',
-        }
-      ],
       leftIconStyle: {
         width: '50rpx',
         height: '50rpx',
@@ -138,22 +134,10 @@ export default {
     },
     // 发送验证码并进入倒计时
     getSmsCode() {
-      if (!this.form.graphicCode) {
-        this.$u.toast('请先输入图形验证码')
-        return
-      }
-      // if (this.form.graphicCode !== this.graphicCode) {
-      //   this.$u.toast('图形验证码输入错误')
-      //   return
-      // }
-      wx.showLoading({ title: '验证码加载中...' })
-      const smsType = this.isRegister ? 1 : 0
-      userApi.sendSmsCode({
-        phone: this.form.account,
-        code: this.form.graphicCode,
-        codeUuid: this.graphicCodeData.codeUuid,
-        smsType,
+      this.$request('user/setVerifyCode', {
+        mobile: this.loginParams.mobile,
       }).then(res => {
+        this.$toast('验证码发送成功')
         this.smsCodeBtnDisabled = true
         this.codeSeconds = 60
         this.interval = setInterval(() => {
@@ -180,35 +164,37 @@ export default {
       this.$refs.uForm.validate(valid => {
         if (valid) {
           this.loading = true
-          // const localAccount = uni.getStorageSync('account')
-          this.$request('user/login', {
+          this.$request('user/loginBySms', {
             ...this.loginParams,
             deviceId: getDeviceUUID(),
-            scene: 'login',
           }).then(res => {
-            console.log(res)
-            uni.switchTab({ url: '/pages/home/index' })
-            // this.navTo('/pages/home/index')
-            uni.setStorageSync('accessToken', res.accessToken)
-            this.findUserInfo()
-          }).catch(() => {
-            uni.showToast({ title: '登录失败', icon: 'none' })
+            if (res.type === 'register') {
+              this.$toast('注册成功, 待激活状态, 管理员将尽快进行审核。')
+            } else if (res.status === 1) {
+              this.setLocal(res)
+              uni.switchTab({ url: '/pages/index/index' })
+            } else if (res.status === 0) {
+              this.$toast('待激活状态, 管理员将尽快进行审核。')
+            } else if (res.status === 2) {
+              this.$toast('审核拒绝, 账号已停用。')
+            }
           }).finally(() => {
             this.loading = false
           })
         }
       })
     },
+    setLocal(res) {
+      uni.setStorageSync('uni_id_token', res.token)
+      uni.setStorageSync('uni_id_token_expired', res.tokenExpired)
+      uni.setStorageSync('mobile', res.mobile)
+      uni.setStorageSync('userInfo', JSON.stringify(res.userInfo))
+    },
     register() {
       this.navTo('/pages/register-forget/index')
     },
     forget() {
       this.navTo('/pages/register-forget/index?type=forget')
-    },
-    findUserInfo() {
-      userApi.findUserInfo().then(res => {
-        uni.setStorageSync('userInfo', JSON.stringify(res))
-      })
     },
   },
 }
@@ -282,26 +268,21 @@ export default {
       display: flex;
     }
     // 发送验证码样式
-    .input-item-sms-code {
-      .input-wrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .sms-code-btn {
-        width: 200upx;
-        background-color: #fff;
-        display: flex;
-        padding: 15upx 0;
-        justify-content: center;
-        align-items: center;
-        border-radius: 12upx;
-      }
-
-      .sms-code-resend {
-        color: #666;
+    .sms-code-btn {
+      width: 200upx;
+      background-color: #fff;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      border-left: 1px solid #ccc;
+      text-align: right;
+      font-size: 30rpx;
+      color: $uni-color-primary;
+      &.disabled{
+        pointer-events: none;
+        cursor: not-allowed;
       }
     }
-	}
+
+  }
 </style>
