@@ -5,6 +5,8 @@ import i18n from '@/locale/index'
 import formRules from '@/utils/formRules'
 import setting from '@/setting'
 import { request } from '@/utils/_request'
+import dbRequest from '@/utils/request'
+import dayjs from "dayjs";
 
 import divider from '@/components/divider'
 
@@ -18,6 +20,8 @@ Vue.component('divider', divider)
 Vue.config.productionTip = false
 
 Vue.prototype.$request = request
+Vue.prototype.$dbRequest = dbRequest
+Vue.prototype.$dayjs = dayjs
 Vue.prototype.$rules = formRules
 
 Vue.prototype.$baseUrl = setting.baseUrl

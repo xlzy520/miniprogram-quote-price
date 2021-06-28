@@ -16,7 +16,7 @@
               @click="handleItem(item)">
           <u-image :src="item.imgUrls[0]" width="320rpx" height="320rpx" mode=""></u-image>
           <view class="text">
-            <view class="title text-base">{{ getLocaleName(item) }}</view>
+            <view class="title text-base text-center">{{ getLocaleName(item) }}</view>
           </view>
         </view>
       </view>
@@ -72,7 +72,7 @@ export default {
       })
     },
     handleItem(item) {
-      wx.navigateTo({ url: '/pages/exhibition-detail/index?id=' + item.id })
+      wx.navigateTo({ url: '/pages/product-detail/index?id=' + item._id })
     },
     tableLoad(data, ended) {
       // this.expData = data.map(v => ({

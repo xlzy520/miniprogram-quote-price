@@ -10,6 +10,12 @@
       }
     },
     {
+      "path": "pages/product-detail/index",
+      "style": {
+        "navigationBarTitleText": "产品详情"
+      }
+    },
+    {
       "path": "pages/chooseProductType/index",
       "style": {
         "navigationBarTitleText": "选择想看的类型"
@@ -52,12 +58,12 @@
         "iconPath": "/static/tabBar/icon-home.png",
         "selectedIconPath": "/static/tabBar/icon-home-selected.png"
       },
-      {
-        "pagePath": "pages/form/index",
-        "text": "表单",
-        "iconPath": "/static/tabBar/icon-tabbar-mine.png",
-        "selectedIconPath": "/static/tabBar/icon-tabbar-mine-selected.png"
-      },
+//      {
+//        "pagePath": "pages/form/index",
+//        "text": "表单",
+//        "iconPath": "/static/tabBar/icon-tabbar-mine.png",
+//        "selectedIconPath": "/static/tabBar/icon-tabbar-mine-selected.png"
+//      },
       {
         "pagePath": "pages/mine/index",
         "text": "我的(Mine)",
