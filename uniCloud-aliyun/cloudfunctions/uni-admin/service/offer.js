@@ -18,6 +18,6 @@ module.exports = class UserService extends Service {
     return this.db.collection('offer').where({
       user_id: this.ctx.auth.uid,
       isDeleted: 0,
-    }).get()
+    }).orderBy('create_date', 'desc').get()
   }
 }
