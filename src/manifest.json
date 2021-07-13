@@ -54,7 +54,7 @@
     "quickapp" : {},
     /* 快应用特有相关 */
     "mp-weixin" : {
-      "appid" : "wx0db38963938fe329",
+      "appid" : "wx7f8b189a342eb7ba",
       "cloudfunctionRoot": "/static/cloudfunctions-tcb/",
       "setting" : {
         "urlCheck": false,
