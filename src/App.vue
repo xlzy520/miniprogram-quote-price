@@ -15,6 +15,8 @@ export default {
       const locale = uni.getStorageSync('lang')
       if (locale) {
         this.$i18n.locale = locale
+      } else {
+        uni.navigateTo({ url: '/pages/chooseLang/index' })
       }
     },
   },
