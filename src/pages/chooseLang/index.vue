@@ -49,6 +49,10 @@ export default {
     updateUserProductType({ value }) {
       this.$i18n.locale = value
       uni.setStorageSync('lang', value)
+      uni.showToast({ title: this.$t('choose.success') })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 500)
     },
   },
 }
