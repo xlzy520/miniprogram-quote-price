@@ -13,9 +13,10 @@
           <text class="text-base">{{ userInfo.userName || '暂无' }}</text>
           <image src="/static/icon/mine/icon-user-tag.png" mode="widthFix"></image>
         </view>
-        <view class="account text-gray-500 text-xs">手机号：{{ userInfo.phone || '********' }}</view>
+        <view class="account text-gray-500 text-xs">{{$t('login.phone')}}：{{ userInfo.phone || '********' }}</view>
       </view>
-      <view v-else class="text-base layout-col-center to-login-btn" @click="toLogin">立即登录</view>
+      <view v-else class="text-base layout-col-center to-login-btn" @click="toLogin">
+        {{$t('login.submit')}}</view>
     </view>
   </view>
   <view class="ctr-group">
@@ -33,7 +34,7 @@
   </view>
   <view v-if="userInfo.phone" class="">
     <u-button class="confirm-btn logout" @click="logout">
-      退出登录
+      {{$t('logout.submit')}}
     </u-button>
   </view>
 </view>
@@ -45,21 +46,21 @@ export default {
   data() {
     return {
       userInfo: {
-        phone: '12312'
+        phone: '12312',
       },
       navList: [
+        // {
+        //   title: '我的设置',
+        //   desc: '姓名、手机号、地址管理',
+        //   url: '/pages/mine/myInfo',
+        //   icon: '/static/icon/mine/icon-user-info.png',
+        // },
         {
-          title: '我的信息',
-          desc: '姓名、手机号、地址管理',
-          url: '/pages/mine/myInfo',
-          icon: '/static/icon/mine/icon-user-info.png',
-        },
-        {
-          title: '我的报价',
-          desc: '我的报价记录',
+          title: this.$t('mine.offer'),
+          // desc: '我的报价记录',
           url: '/pages/mine/mySign',
           icon: '/static/icon/mine/icon-sign.png',
-        },
+        }
         // {
         //   title: '我的预约',
         //   desc: '我的预约门票',
@@ -78,12 +79,12 @@ export default {
         //   url: '/pages/mine/myActivity',
         //   icon: '/static/icon/mine/icon-export-apply.png',
         // },
-        {
-          title: '关于小程序',
-          desc: '了解小程序更多信息',
-          url: '/pages/mine/aboutUs',
-          icon: '/static/icon/mine/icon-about.png',
-        }
+        // {
+        //   title: '关于小程序',
+        //   desc: '了解小程序更多信息',
+        //   url: '/pages/mine/aboutUs',
+        //   icon: '/static/icon/mine/icon-about.png',
+        // }
 
       ],
     }
@@ -118,7 +119,7 @@ export default {
 
       }).then(res => {
         console.log(res)
-        uni.showLoading({ title: '退出登录中...' })
+        uni.showLoading()
         uni.setStorageSync('accessToken', res.accessToken)
       }).finally(() => {
         this.loading = false
