@@ -1,0 +1,152 @@
+{
+	"bsonType": "object",
+	"required": [],
+	"permission": {
+		"read": "((doc.type==0 &&'futures_manage' in auth.role) || (doc.type==1 &&'spot_manage' in auth.role)) || ('user' in auth.role) && doc.isDeleted == 0",
+		"create": "'futures_manage' in auth.role || 'spot_manage' in auth.role",
+		"update": "(doc.type == 0 && 'futures_manage' in auth.role) || (doc.type == 1 && 'spot_manage' in auth.role)",
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "产品 ID，系统自动生成"
+		},
+		"name": {
+			"bsonType": "string",
+			"title": "产品名",
+			"description": "产品名",
+			"trim": "both"
+		},
+		"name_en": {
+			"bsonType": "string",
+			"title": "产品名英文",
+			"description": "产品名英文",
+			"trim": "both"
+		},
+		"desc": {
+			"bsonType": "string",
+			"title": "富文本",
+			"description": "富文本",
+			"trim": "both"
+		},
+		"desc_en": {
+			"bsonType": "string",
+			"title": "富文本英文",
+			"description": "富文本英文",
+			"trim": "both"
+		},
+		"trade_type": {
+			"bsonType": "int",
+			"description": "贸易方式：0 FOB 1 CIF",
+			"title": "贸易方式",
+			"defaultValue": 0,
+			"enum": [{
+				"text": "FOB",
+				"value": 0
+			}, {
+				"text": "CIF",
+				"value": 1
+			}]
+		},
+		"port_name": {
+			"bsonType": "string",
+			"description": "到达港口",
+			"trim": "both"
+		},
+		"port_number": {
+			"bsonType": "string",
+			"description": "到达港口代码",
+			"trim": "both"
+		},
+		"arrive_time": {
+			"bsonType": "timestamp",
+			"description": "预计到港日期"
+		},
+		"carrier": {
+			"bsonType": "string",
+			"description": "承运商"
+		},
+		"freighter_name": {
+			"bsonType": "string",
+			"description": "货轮名称"
+		},
+		"freighter_number": {
+			"bsonType": "string",
+			"description": "货轮班次"
+		},
+		"created_by": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"description": "创建人"
+		},
+		"imgUrls": {
+			"title": "产品关联图片",
+			"bsonType": "array",
+			"description": "产品关联图片"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "更新时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"updated_by": {
+			"bsonType": "string",
+			"foreignKey": "uni-id-users._id",
+			"description": "最后更新人id（后台管理人员）"
+		},
+		"status": {
+			"bsonType": "int",
+			"description": "产品状态：0 正常 1 禁用",
+			"title": "产品状态",
+			"defaultValue": 0,
+			"enum": [{
+				"text": "正常",
+				"value": 0
+			}, {
+				"text": "禁用",
+				"value": 1
+			}]
+		},
+		"type": {
+			"bsonType": "int",
+			"description": "产品类型：0 期货 1 现货",
+			"title": "产品类型",
+			"defaultValue": 0,
+			"permission": {
+				"read": true,
+				"create": "(doc.type == 0 && 'futures_manage' in auth.role) || (doc.type == 1 && 'spot_manage' in auth.role)",
+				"update": "(doc.type == 0 && 'futures_manage' in auth.role) || (doc.type == 1 && 'spot_manage' in auth.role)",
+				"delete": false
+			},
+			"enum": [{
+				"text": "期货",
+				"value": 0
+			}, {
+				"text": "现货",
+				"value": 1
+			}]
+		},
+		"isDeleted": {
+			"bsonType": "int",
+			"description": "是否被删除：0 否 1 是",
+			"title": "产品类型",
+			"defaultValue": 0,
+			"enum": [{
+				"text": "否",
+				"value": 0
+			}, {
+				"text": "是",
+				"value": 1
+			}]
+		}
+	}
+}

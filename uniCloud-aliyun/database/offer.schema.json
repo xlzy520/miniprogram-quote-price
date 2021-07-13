@@ -1,0 +1,71 @@
+{
+	"bsonType": "object",
+	"required": [],
+	"permission": {
+		"read": false,
+		"create": true,
+		"update": "(doc.user_id == auth.uid) && isDeleted == 0",
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "报价 ID，系统自动生成"
+		},
+		"product_id": {
+			"bsonType": "string",
+			"title": "产品的ID",
+			"description": "产品的ID",
+			"foreignKey": "uni-id-product._id",
+			"trim": "both"
+		},
+		"amount": {
+			"bsonType": "string",
+			"title": "报价金额",
+			"description": "报价金额",
+			"trim": "both"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"title": "用户的ID",
+			"description": "用户的ID",
+			"foreignKey": "uni-id-users._id",
+			"trim": "both"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"currency": {
+			"bsonType": "int",
+			"description": "报价币种：0 RMB 1 USD 2 EUR",
+			"title": "报价币种",
+			"defaultValue": 0,
+			"enum": [{
+				"text": "RMB",
+				"value": 0
+			}, {
+				"text": "USD",
+				"value": 1
+			}, {
+				"text": "EUR",
+				"value": 1
+			}]
+		},
+		"isDeleted": {
+			"bsonType": "int",
+			"description": "是否被删除：0 否 1 是",
+			"title": "产品类型",
+			"defaultValue": 0,
+			"enum": [{
+				"text": "否",
+				"value": 0
+			}, {
+				"text": "是",
+				"value": 1
+			}]
+		}
+	}
+}
