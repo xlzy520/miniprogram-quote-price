@@ -6,50 +6,62 @@
     <view class="p-3">
       <view class="name font-bold text-2xl text-red-400 mb-3">{{detail.name}}</view>
       <view class="product-detail lzy-box-shadow">
-        <view class="card-title font-bold text-xl px-3 pt-3 text-red-300">产品信息</view>
-        <u-cell-item title="贸易方式" :value="detail.trade_type" :arrow="false"></u-cell-item>
-        <u-cell-item title="到达港口" :value="detail.port_name" :arrow="false"></u-cell-item>
-        <u-cell-item title="到达港口代码" :value="detail.port_number" :arrow="false"></u-cell-item>
-        <u-cell-item title="预计到港日期" :value="detail.arrive_time" :arrow="false"></u-cell-item>
-        <u-cell-item title="承运商" :value="detail.carrier" :arrow="false"></u-cell-item>
-        <u-cell-item title="货轮名称" :value="detail.freighter_name" :arrow="false"></u-cell-item>
-        <u-cell-item title="货轮班次" :value="detail.freighter_number" :arrow="false"></u-cell-item>
-        <view class="desc-title card-title font-bold text-xl px-3 pt-3 text-red-300">描述</view>
+        <view class="card-title font-bold text-xl px-3 pt-3 text-red-300">
+          {{$t('product.detail.title')}}</view>
+        <u-cell-item :title="$t('product.detail.trade_type')"
+                     :value="detail.trade_type" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.port_name')"
+                     :value="detail.port_name" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.port_number')"
+                     :value="detail.port_number" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.arrive_time')"
+                     :value="detail.arrive_time" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.carrier')"
+                     :value="detail.carrier" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.freighter_name')"
+                     :value="detail.freighter_name" :arrow="false"></u-cell-item>
+        <u-cell-item :title="$t('product.detail.freighter_number')"
+                     :value="detail.freighter_number" :arrow="false"></u-cell-item>
+        <view class="desc-title card-title font-bold text-xl px-3 pt-3 text-red-300">
+          {{$t('product.detail.desc')}}</view>
         <view class="product-desc p-3">
           <u-parse :html="detail.desc" :show-with-animation="true"></u-parse>
         </view>
       </view>
     </view>
     <view class="p-3">
-      <view class="name font-bold text-2xl text-red-400 mb-3">我的历史报价</view>
+      <view class="name font-bold text-2xl text-red-400 mb-3">
+        {{$t('product.detail.myHistoryOffer')}}</view>
       <view class="product-detail lzy-box-shadow">
-        <u-cell-item title="RMB ￥145" value="2020-06-28 14:50:20" :arrow="false"></u-cell-item>
-        <u-cell-item title="RMB ￥135" value="2020-06-28 14:40:20" :arrow="false"></u-cell-item>
-        <u-cell-item title="RMB ￥125" value="2020-06-28 14:20:20" :arrow="false"></u-cell-item>
+        <u-cell-item v-for="item in myHistoryOfferList" :key="item._id"
+                     :title="formatPrice(item)"
+                     :value="formatTime(item.create_date)"
+                     :arrow="false"></u-cell-item>
 
       </view>
     </view>
     <view class="fixed inset-x-0 px-9 z-10 footer">
-      <u-button type="primary" @click="offer">输入报价</u-button>
+      <u-button type="primary" @click="openOfferModal">{{$t('product.action.offer')}}</u-button>
     </view>
     <u-popup v-model="show" mode="center" class="" width="600" border-radius="30" z-index="99">
       <view class="p-3">
-        <view class="name font-bold text-xl text-red-400 mb-3">请输入您的报价</view>
+        <view class="name font-bold text-xl text-red-400 mb-3">
+          {{$t('product.action.offer.label')}}</view>
         <u-form :model="form" ref="uForm" label-position="top" class="lzy-form"
                 :border-bottom="false">
-          <u-form-item label="币种" prop="price" :border-bottom="false">
+          <u-form-item :label="$t('common.currency')" prop="price" :border-bottom="false">
             <u-input :border="true" type="select" :select-open="currencyShow"
-                     v-model="currencyLabel" placeholder="请选择学历"
+                     v-model="currencyLabel"
                      @click="showCurrencySelect"></u-input>
             <u-select v-model="currencyShow" :list="currencyList"
                       @confirm="selectCurrency"/>
           </u-form-item>
-          <u-form-item label="金额" prop="price" :border-bottom="false">
+          <u-form-item :label="$t('common.price')" prop="price" :border-bottom="false">
             <u-input class="u-border-bottom" v-model="form.price" type="number" focus
-                     placeholder="请输入您的报价"/>
+                     :placeholder="$t('product.action.offer.label')"/>
           </u-form-item>
           <u-form-item>
-            <u-button type="primary" @click="submitOffer">提交</u-button>
+            <u-button type="primary" @click="submitOffer">{{$t('common.submit')}}</u-button>
           </u-form-item>
         </u-form>
       </view>
@@ -65,6 +77,7 @@ import { formatTime } from '@/utils'
 
 const db = uniCloud.database()
 const dbCName = 'uni-id-product'
+const offerDBName = 'offer'
 export default {
   name: 'Product-Detail',
   data() {
@@ -83,6 +96,7 @@ export default {
       detail: {
         imgUrls: [],
       },
+      myHistoryOfferList: []
     }
   },
   onLoad() {
@@ -96,8 +110,18 @@ export default {
     isCN() {
       return uni.getStorageSync('lang') === 'zh-CN'
     },
+    userID() {
+      const userInfo = uni.getStorageSync('userInfo')
+      const id = typeof userInfo === 'string' ? JSON.parse(userInfo)._id : userInfo._id
+      return id
+    },
   },
   methods: {
+    formatPrice(data){
+      const currency = CurrencyEnum[data.currency]
+      const amount = data.amount
+      return `${currency} ￥${amount}`
+    },
     selectCurrency(data) {
       this.form.currency = data[0].value
       this.currencyLabel = data[0].label
@@ -105,23 +129,40 @@ export default {
     showCurrencySelect() {
       this.currencyShow = true
     },
-    offer() {
+    openOfferModal() {
       this.show = true
+    },
+    offer() {
+      db.collection(offerDBName).add({
+        product_id: this.id,
+        amount: this.form.price,
+        user_id: this.userID,
+        currency: this.form.currency,
+      }).then(res => {
+        uni.showToast({
+          title: this.$t('common.success'),
+          icon: 'success',
+        })
+        this.getMyHistoryOffer()
+      }).finally(() => {
+        this.show = false
+      })
     },
     submitOffer() {
       if (!this.form.price) {
         uni.showToast({
-          title: '请输入报价',
-          icon: 'none'
+          title: this.$t('product.action.offer.label'),
+          icon: 'none',
         })
         return
       }
       uni.showModal({
-        title: '提示',
-        content: '确认用此价格提交？',
-        success: ()=> {
+        title: this.$t('common.tips'),
+        content: this.$t('product.action.offer.confirm'),
+        success: () => {
           console.log(this.form)
-        }
+          this.offer()
+        },
       })
     },
     getDetail() {
@@ -133,7 +174,26 @@ export default {
           trade_type: TradeTypeEnum[data.trade_type],
           arrive_time: formatTime(data.arrive_time),
         }
+      }).finally(() => {
+        uni.hideLoading()
+        uni.stopPullDownRefresh()
       })
+    },
+    getMyHistoryOffer() {
+      this.$request('offer/getMyHistoryOffer').then(res => {
+        this.myHistoryOfferList = res.data
+        console.log(res);
+        // uni.setStorageSync('productType', this.form.product_type)
+        // uni.switchTab({ url: '/pages/index/index' })
+      }).finally(() => {
+        uni.hideLoading()
+      })
+      // this.$dbRequest(db.collection(offerDBName).where({
+      //   user_id: this.userID,
+      //   isDeleted: 0,
+      // }).get()).then((res) => {
+      //   const data = res.data
+      // })
     },
     getLocaleName(item) {
       return this.isCN ? item.name : item.name_en
@@ -143,7 +203,8 @@ export default {
     },
   },
   onPullDownRefresh() {
-
+    this.getDetail()
+    this.getMyHistoryOffer()
   },
   onReachBottom() {
   },
