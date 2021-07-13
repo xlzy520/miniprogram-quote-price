@@ -4,9 +4,21 @@
   },
   "pages": [
     {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "首页(Home)"
+      }
+    },
+    {
+      "path": "pages/login/login-info",
+      "style": {
+        "navigationBarTitleText": "完善信息"
       }
     },
     {
@@ -16,23 +28,12 @@
       }
     },
     {
-      "path": "pages/chooseProductType/index",
-      "style": {
-        "navigationBarTitleText": "选择想看的类型"
-      }
-    },
-    {
       "path": "pages/chooseLang/index",
       "style": {
         "navigationBarTitleText": "语言选择(Language Choose)"
       }
     },
-    {
-      "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
+
 
 
     {

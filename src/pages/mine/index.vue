@@ -3,17 +3,18 @@
 <view class="app-container">
   <view class="user-info ftf layout-items-center">
     <view class="avatar">
-      <image :src="userInfo.avatar || '/static/icon/avatar.png'"
-             mode="widthFix"></image>
+      <image :src="avatar" mode="widthFix"></image>
 <!--      <view class="txt f24 layout-abs-center" @click="editUserInfo">编辑</view>-->
     </view>
     <view class="info">
-      <view v-if="userInfo.phone">
+      <view v-if="userInfo.mobile">
         <view class="nick-name">
-          <text class="text-base">{{ userInfo.userName || '暂无' }}</text>
+          <text class="text-base">{{ userInfo.nickName || '暂无' }}</text>
           <image src="/static/icon/mine/icon-user-tag.png" mode="widthFix"></image>
         </view>
-        <view class="account text-gray-500 text-xs">{{$t('login.phone')}}：{{ userInfo.phone || '********' }}</view>
+        <view class="account text-gray-500 text-xs">
+          {{$t('login.phone')}}：{{ userInfo.mobile || '********' }}
+        </view>
       </view>
       <view v-else class="text-base layout-col-center to-login-btn" @click="toLogin">
         {{$t('login.submit')}}</view>
@@ -32,7 +33,7 @@
       <u-icon name="arrow-right" color="#CCC"></u-icon>
     </view>
   </view>
-  <view v-if="userInfo.phone" class="">
+  <view v-if="userInfo.mobile" class="">
     <u-button class="confirm-btn logout" @click="logout">
       {{$t('logout.submit')}}
     </u-button>
@@ -46,7 +47,7 @@ export default {
   data() {
     return {
       userInfo: {
-        phone: '12312',
+        mobile: '12312',
       },
       navList: [
         // {
@@ -94,7 +95,12 @@ export default {
   },
   props: {},
   onShow(options) {
-    // this.checkUserInfo()
+    this.checkUserInfo()
+  },
+  computed: {
+    avatar() {
+      return this.userInfo.avatarUrl || '/static/icon/avatar.png'
+    },
   },
   methods: {
     /**
@@ -102,11 +108,13 @@ export default {
      */
     checkUserInfo() {
       const userInfoStr = uni.getStorageSync('userInfo')
+      const wxUserInfo = uni.getStorageSync('wxUserInfo')
       if (userInfoStr) {
         const userInfo = JSON.parse(userInfoStr)
         this.userInfo = {
           ...userInfo,
-          avatarUrl: this.$imgBaseUrl + userInfo.headerPath,
+          nickName: wxUserInfo.nickName,
+          avatarUrl: wxUserInfo.avatarUrl,
         }
       }
     },
@@ -115,17 +123,10 @@ export default {
     },
     logout() {
       const localAccount = uni.getStorageSync('account')
-      this.$request('user/logout', {
-
-      }).then(res => {
-        console.log(res)
-        uni.showLoading()
-        uni.setStorageSync('accessToken', res.accessToken)
-      }).finally(() => {
-        this.loading = false
-        // uni.removeStorageSync('userInfo')
+      this.$request('user/logout').finally(() => {
+        uni.removeStorageSync('accessToken')
+        uni.removeStorageSync('userInfo')
         this.toLogin()
-        uni.hideLoading()
       })
     },
     toLogin() {

@@ -10,3 +10,31 @@ export function getDeviceUUID() {
   uni.setStorageSync('uni_deviceId', deviceId)
   return deviceId
 }
+
+export const handleLoginAuth = (successCallback, errorCallback, finallyCallback) => {
+  const localUserInfo = uni.getStorageSync('wxUserInfo')
+  if (localUserInfo) {
+    if (finallyCallback) {
+      finallyCallback()
+    } else {
+      successCallback && successCallback()
+    }
+    return
+  }
+  wx.getUserProfile({
+    desc: '用于完善用户资料',
+  }).then(res => {
+    uni.setStorageSync('wxUserInfo', res.userInfo)
+    successCallback && successCallback()
+  }).catch((e) => {
+    if (e.errMsg === 'getUserProfile:fail auth deny') {
+      // Taro.atMessage({
+      //   message: getLocaleHelper().t('error.workOrder.unAuthorized'),
+      //   type: 'error',
+      // })
+      errorCallback && errorCallback()
+    }
+  }).finally(() => {
+    finallyCallback && finallyCallback()
+  })
+}

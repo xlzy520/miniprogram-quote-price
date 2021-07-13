@@ -58,7 +58,7 @@
         </view>
         <u-button class="confirm-btn" :disabled="!loginParams.code" :loading="loading"
                   open-type="getUserProfile"
-                  @click="toLogin">
+                  @click="handleLoginClick">
           {{$t('login.submit')}}
         </u-button>
 <!--        <view class="login-footer">-->
@@ -72,7 +72,7 @@
 	</view>
 </template>
 <script>
-import { getDeviceUUID } from '@/utils'
+import { getDeviceUUID, handleLoginAuth } from '@/utils'
 import LoginTop from './components/LoginTop.vue'
 
 export default {
@@ -163,6 +163,15 @@ export default {
     // 统一跳转路由
     navTo(url) {
       uni.navigateTo({ url })
+    },
+    handleLoginClick() {
+      // #ifdef H5
+      this.toLogin()
+      // #endif
+
+      // #ifdef MP-WEIXIN
+      handleLoginAuth(null, null, this.toLogin)
+      // #endif
     },
     // 提交表单
     toLogin() {
