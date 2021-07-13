@@ -1,6 +1,6 @@
 <template>
   <view class="p-3 product-home">
-    <u-search v-model="keyword"  :action-text="searchBtnText" :placeholder="searchPlaceholderText"
+    <u-search v-model="keyword"  :action-text="$t('common.search')" :placeholder="$t('search.keyword')"
               @search="search" @custom="search" @clear="clear"></u-search>
     <unicloud-db ref="udb" @load="tableLoad" collection="uni-id-product" :options="pageOptions"
                  :where="where" field="_id,name,name_en,imgUrls,price,status,create_date"
@@ -49,12 +49,6 @@ export default {
     isCN() {
       return uni.getStorageSync('lang') === 'zh-CN'
     },
-    searchBtnText() {
-      return '搜索'
-    },
-    searchPlaceholderText() {
-      return '请输入关键字'
-    },
   },
   methods: {
     getLocaleName(item) {
@@ -75,11 +69,7 @@ export default {
       wx.navigateTo({ url: '/pages/product-detail/index?id=' + item._id })
     },
     tableLoad(data, ended) {
-      // this.expData = data.map(v => ({
-      //   ...v,
-      //   create_date: this.$formatDate(v.create_date)
-      // }))
-      // 仅导出当前页
+
     },
     loadData(clear = true, callback) {
       this.$refs.udb.loadData({
@@ -100,6 +90,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::v-deep .u-action-active{
+  width: 50px;
+}
 
 .product-list {
   .product-item {
