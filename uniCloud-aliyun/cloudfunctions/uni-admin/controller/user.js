@@ -71,11 +71,11 @@ module.exports = class UserController extends Controller {
     return this.service.user.logout(this.ctx.event.uniIdToken)
   }
 
-  async updateUserProductType() {
+  async completeUserInfo() {
     const {
-      product_type,
+      product_type, desc,
     } = this.ctx.data
-    return this.service.user.updateUserProductType(product_type, this.ctx.event.uniIdToken)
+    return this.service.user.completeUserInfo({ product_type, desc }, this.ctx.event.uniIdToken)
   }
 
   async setVerifyCode() {

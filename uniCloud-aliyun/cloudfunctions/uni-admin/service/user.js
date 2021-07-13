@@ -103,13 +103,14 @@ module.exports = class UserService extends Service {
     })
   }
 
-  async updateUserProductType(product_type, token) {
+  async completeUserInfo({ product_type, desc }, token) {
     await this.checkToken(token, {
       needPermission: true,
       needUserInfo: false,
     })
-    return await this.ctx.uniID.updateUser({
+    return this.ctx.uniID.updateUser({
       product_type,
+      desc,
       uid: this.ctx.auth.uid,
     })
   }
