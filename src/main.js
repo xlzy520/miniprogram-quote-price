@@ -6,7 +6,7 @@ import formRules from '@/utils/formRules'
 import setting from '@/setting'
 import { request } from '@/utils/_request'
 import dbRequest from '@/utils/request'
-import dayjs from "dayjs";
+import dayjs from 'dayjs'
 
 import divider from '@/components/divider'
 
@@ -14,8 +14,13 @@ import App from './App'
 
 import '@/style/tailwind.css'
 import '@/style/index.scss'
+import UMask from 'uview-ui/components/u-mask/u-mask'
+import UIcon from 'uview-ui/components/u-icon/u-icon'
+
 
 Vue.component('divider', divider)
+Vue.component('u-mask', UMask)
+Vue.component('u-icon', UIcon)
 
 Vue.config.productionTip = false
 

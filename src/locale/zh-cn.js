@@ -1,10 +1,12 @@
 export default {
   'common.success': '操作成功',
+  'common.refresh.success': '刷新成功',
   'common.search': '搜索',
   'common.submit': '提交',
   'common.price': '金额',
   'common.currency': '币种',
   'common.tips': '提示',
+  'common.refresh': '刷新',
   'search.keyword': '请输入关键字',
 
   'login.smsLogin': '验证码登录',

@@ -30,12 +30,18 @@
       </view>
     </view>
     <view class="p-3">
-      <view class="name font-bold text-2xl text-red-400 mb-3">
-        {{$t('product.detail.myHistoryOffer')}}</view>
+      <view class="layout-slide mb-3">
+        <view class="name font-bold text-2xl text-red-400">
+          {{$t('product.detail.myHistoryOffer')}}</view>
+        <u-button type="primary" plain size="mini"
+                  @click="refreshMyHistoryOffer"
+                  :loading="historyLoading">{{$t('common.refresh')}}</u-button>
+
+      </view>
       <view class="product-detail lzy-box-shadow">
         <u-cell-item v-for="item in myHistoryOfferList" :key="item._id"
-                     :title="formatPrice(item)"
-                     :value="formatTime(item.create_date)"
+                     :title="item.title"
+                     :value="item.value"
                      :arrow="false"></u-cell-item>
 
       </view>
@@ -43,18 +49,24 @@
     <view class="fixed inset-x-0 px-9 z-10 footer">
       <u-button type="primary" @click="openOfferModal">{{$t('product.action.offer')}}</u-button>
     </view>
-    <u-popup v-model="show" mode="center" class="" width="600" border-radius="30" z-index="99">
+    <u-popup v-model="show" mode="center" class="" width="600" border-radius="30" z-index="999">
       <view class="p-3">
         <view class="name font-bold text-xl text-red-400 mb-3">
           {{$t('product.action.offer.label')}}</view>
         <u-form :model="form" ref="uForm" label-position="top" class="lzy-form"
                 :border-bottom="false">
           <u-form-item :label="$t('common.currency')" prop="price" :border-bottom="false">
-            <u-input :border="true" type="select" :select-open="currencyShow"
-                     v-model="currencyLabel"
-                     @click="showCurrencySelect"></u-input>
-            <u-select v-model="currencyShow" :list="currencyList"
-                      @confirm="selectCurrency"/>
+            <u-radio-group v-model="currencyLabel" @change="selectCurrency">
+              <u-radio  v-for="item in currencyList" :key="item.value" :name="item.label">
+                {{item.label}}
+              </u-radio>
+            </u-radio-group>
+
+<!--            <u-input :border="true" type="select" :select-open="currencyShow"-->
+<!--                     v-model="currencyLabel"-->
+<!--                     @click="showCurrencySelect"></u-input>-->
+<!--            <u-select v-model="currencyShow" :list="currencyList"-->
+<!--                      @confirm="selectCurrency"/>-->
           </u-form-item>
           <u-form-item :label="$t('common.price')" prop="price" :border-bottom="false">
             <u-input class="u-border-bottom" v-model="form.price" type="number" focus
@@ -96,14 +108,15 @@ export default {
       detail: {
         imgUrls: [],
       },
-      myHistoryOfferList: []
+      myHistoryOfferList: [],
+      historyLoading: false,
     }
   },
-  onLoad() {
-    const query = this.$route.query
+  onLoad(query) {
     if (query.id) {
       this.id = query.id
       this.getDetail()
+      this.getMyHistoryOffer()
     }
   },
   computed: {
@@ -117,14 +130,15 @@ export default {
     },
   },
   methods: {
-    formatPrice(data){
+    formatPrice(data) {
       const currency = CurrencyEnum[data.currency]
       const amount = data.amount
       return `${currency} ￥${amount}`
     },
     selectCurrency(data) {
-      this.form.currency = data[0].value
-      this.currencyLabel = data[0].label
+      this.currencyLabel = data
+      const value = this.currencyList.findIndex(v => v.label === data) || 0
+      this.form.currency = value
     },
     showCurrencySelect() {
       this.currencyShow = true
@@ -179,14 +193,29 @@ export default {
         uni.stopPullDownRefresh()
       })
     },
-    getMyHistoryOffer() {
+    refreshMyHistoryOffer() {
+      this.historyLoading = true
+      this.getMyHistoryOffer(true)
+    },
+    getMyHistoryOffer(isRefresh) {
       this.$request('offer/getMyHistoryOffer').then(res => {
-        this.myHistoryOfferList = res.data
-        console.log(res);
+        if (isRefresh) {
+          uni.showToast({
+            title: this.$t('common.refresh.success'),
+            icon: 'success',
+          })
+        }
+        this.myHistoryOfferList = (res.data || []).map(v => ({
+          ...v,
+          title: this.formatPrice(v),
+          value: formatTime(v.create_date),
+        }))
+        console.log(res)
         // uni.setStorageSync('productType', this.form.product_type)
         // uni.switchTab({ url: '/pages/index/index' })
       }).finally(() => {
         uni.hideLoading()
+        this.historyLoading = false
       })
       // this.$dbRequest(db.collection(offerDBName).where({
       //   user_id: this.userID,

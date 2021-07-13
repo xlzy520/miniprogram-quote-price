@@ -2,9 +2,11 @@
 	<view class="layout-col-center mt-16">
     <view class="">请选择使用的语言</view>
     <view class="">Please Choose Language</view>
-    <view class="layout-abs-center card-item mt-10" v-for="item in cards" :key="item.title"
-          :style="cardStyle(item)" @click="updateUserProductType(item)">
-      <img :src="item.icon" width="30" height="30" alt="">
+    <view class="layout-abs-center card-item mt-10"
+          :class="item.class"
+          v-for="item in cards" :key="item.title"
+          @click="updateUserProductType(item)">
+      <img :src="item.icon" width="30" height="30" alt="" class="card-item-icon">
       <text class="text-xl text-white ml-10">{{item.title}}</text>
     </view>
 	</view>
@@ -21,12 +23,14 @@ export default {
           value: 'zh-CN',
           icon: '/static/icon/spot-product.png',
           bgImg: '/static/img/bg-people.png',
+          class: 'cn'
         },
         {
           title: 'English',
           value: 'en-US',
           icon: '/static/icon/future-product.png',
           bgImg: '/static/img/bg-record.png',
+          class: 'en'
         }
       ],
     }
@@ -39,13 +43,6 @@ export default {
     // }
   },
   methods: {
-    cardStyle(item) {
-      return {
-        background: `url(${item.bgImg})`,
-        backgroundSize: '277px',
-        backgroundRepeat: 'no-repeat',
-      }
-    },
     updateUserProductType({ value }) {
       this.$i18n.locale = value
       uni.setStorageSync('lang', value)
@@ -60,8 +57,11 @@ export default {
 
 <style lang="scss" scoped>
   .card-item{
-    width: 554upx;
-    height: 172upx;
-    border-radius: 20upx;
+    &.cn{
+      background: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
+    }
+    &.en{
+      background: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
+    }
   }
 </style>

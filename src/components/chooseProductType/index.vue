@@ -1,8 +1,9 @@
 <template>
 	<view class="layout-col-center w-full">
-    <view class="layout-abs-center card-item mt-5" v-for="item in cards" :key="item.title"
-          :style="cardStyle(item)" @click="updateUserProductType(item)">
-      <img :src="item.icon" width="30" height="30" alt="">
+    <view class="layout-abs-center card-item mt-5" :class="item.class" v-for="item in cards"
+          :key="item.title"
+          @click="updateUserProductType(item)">
+      <img :src="item.icon" width="30" height="30" alt="" class="card-item-icon">
       <text class="text-xl text-white ml-10">{{item.title}}</text>
     </view>
 	</view>
@@ -19,12 +20,14 @@ export default {
           value: 1,
           icon: '/static/icon/spot-product.png',
           bgImg: '/static/img/bg-people.png',
+          class: 'spot',
         },
         {
           title: this.$t('product.futures'),
           value: 0,
           icon: '/static/icon/future-product.png',
           bgImg: '/static/img/bg-record.png',
+          class: 'futures',
         }
       ],
     }
@@ -37,15 +40,8 @@ export default {
     // }
   },
   methods: {
-    cardStyle(item) {
-      return {
-        background: `url(${item.bgImg})`,
-        backgroundSize: '277px',
-        backgroundRepeat: 'no-repeat',
-      }
-    },
     updateUserProductType(data) {
-      this.$emit('change', data);
+      this.$emit('change', data)
       // this.$request('user/updateUserProductType', {
       //   product_type: value,
       // }).then(res => {
@@ -59,8 +55,11 @@ export default {
 
 <style lang="scss" scoped>
   .card-item{
-    width: 554upx;
-    height: 172upx;
-    border-radius: 20upx;
+    &.spot{
+      background: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
+    }
+    &.futures{
+      background: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
+    }
   }
 </style>

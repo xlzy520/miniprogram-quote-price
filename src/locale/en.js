@@ -1,10 +1,12 @@
 export default {
-  'common.success': 'Successfully!',
+  'common.success': 'Successfully',
+  'common.refresh.success': 'Refresh Successfully',
   'common.search': 'Search',
   'common.submit': 'Submit',
   'common.price': 'Price',
   'common.currency': 'Currency',
   'common.tips': 'Tips',
+  'common.refresh': 'refresh',
   'search.keyword': 'keyword',
 
   'login.smsLogin': 'SMS Login',

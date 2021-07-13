@@ -1,18 +1,20 @@
 <template>
   <view class="p-3 product-home">
-    <u-search v-model="keyword"  :action-text="$t('common.search')" :placeholder="$t('search.keyword')"
+    <u-search v-model="keyword"
+              :action-text="$t('common.search')"
+              :placeholder="$t('search.keyword')"
               @search="search" @custom="search" @clear="clear"></u-search>
     <unicloud-db ref="udb" @load="tableLoad" collection="uni-id-product" :options="pageOptions"
                  :where="where" field="_id,name,name_en,imgUrls,price,status,create_date"
                  page-data="add" :orderby="orderby" :getcount="true"
                  :page-size="pageOptions.size"
                  :page-current="pageOptions.current"
-                 v-slot:default="{data,pagination,loading,error,hasMore}">
+                 v-slot:default="{data,loading}">
       <view class="layout-abs-center min-h-80vh" v-if="loading">
         <u-loading mode="circle" color="#2d8cf0" size="72"></u-loading>
       </view>
       <view v-else class="layout-slide flex-wrap pt-3 product-list">
-        <view v-for="(item, index) in [...data, ...data]" :key="index" class="product-item"
+        <view v-for="(item, index) in data" :key="index" class="product-item"
               @click="handleItem(item)">
           <u-image :src="item.imgUrls[0]" width="320rpx" height="320rpx" mode=""></u-image>
           <view class="text">
@@ -38,6 +40,7 @@ export default {
     return {
       keyword: '',
       where: '',
+      loading: false,
       orderby: 'create_date',
       pageOptions: {
         size: 20,
