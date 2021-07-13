@@ -2,7 +2,7 @@
   <view class="login-top">
     <view class="welcome">
       <view class="title">Hello，~</view>
-      <text class="f36">欢迎来到XXXXX</text>
+      <text class="f36">{{$t('login.welcome')}}</text>
     </view>
   </view>
 </template>

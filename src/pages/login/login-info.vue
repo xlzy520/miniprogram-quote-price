@@ -1,83 +1,64 @@
 <template>
 	<view class="register container">
-    <title-header :title="title"/>
+    <title-header :title="$t('login.complete')"/>
 		<view class="main-content ftf">
       <view class="register-form">
-        <u-form :model="form" ref="uForm" label-position="top" class="lzy-form">
-          <u-form-item label="姓名" required class="user-name-row lzy-form-item" prop="name">
-            <div class="u-flex u-col-center u-row-between user-name-row w90">
-              <u-input required v-model="form.userName" placeholder="请输入您的姓名" />
-              <u-radio-group v-model="form.gender" active-color="#fff" width="120rpx"
-                             class="lzy-radio">
-                <u-radio :name="1">男</u-radio>
-                <u-radio :name="0">女</u-radio>
-              </u-radio-group>
-            </div>
+        <u-form :model="form" ref="uForm" label-position="top">
+          <u-form-item :label="$t('login.desc')" required prop="desc">
+            <u-input required v-model="form.desc" :placeholder="$t('login.desc')" />
           </u-form-item>
-<!--          <u-col span="6">-->
-<!--            <u-form-item label="年龄" required prop="age">-->
-<!--              <u-input required v-model="form.age" placeholder="请输入您的年龄"-->
-<!--                       class="w50" maxlength="3" />-->
-<!--              <template slot="right">岁</template>-->
-<!--            </u-form-item>-->
-<!--          </u-col>-->
-          <u-form-item label="身份证号" required prop="idCard">
-            <u-input required v-model="form.idCard" placeholder="请输入您的身份证号" maxlength="18" />
+          <u-form-item :label="productTypeSelectedLabel" required prop="type">
+            <choose-product-type @change="productTypeChange"></choose-product-type>
           </u-form-item>
-          <u-form-item label="家庭地址" required prop="address">
-            <u-input required v-model="form.address" placeholder="请输入您的联系地址" />
-          </u-form-item>
-
         </u-form>
       </view>
 		</view>
     <view class="footer">
       <u-button class="confirm-btn" :disabled="btnLoading" :loading="btnLoading" @click="submit">
-        确定
+        {{$t('common.submit')}}
       </u-button>
     </view>
 	</view>
 </template>
 <script>
-import userApi from 'api/user'
+import TitleHeader from './components/title-header'
+import chooseProductType from '../../components/chooseProductType/index'
 
 export default {
+  components: { TitleHeader, chooseProductType },
   data() {
     return {
+      label: this.$t('product.choose.label'),
       form: {
-        userName: '',
-        gender: 0,
-        // age: 0,
-        idCard: '',
-        address: '',
-      },
-      registerParams: {
-        mobile: '',
-        password: '',
-        password_repetition: '',
-        code: '',
+        desc: '3123',
+        product_type: '',
       },
       btnLoading: false,
-      title: '完善您的信息哦~',
+      productTypeName: '',
       rules: {
-        userName: [
-          { required: true, message: '请输入姓名', trigger: 'blur' }
+        type: [
+          {
+            validator: (rule, value, callback) => !!this.productTypeName,
+            message: this.$t('rules.product.type'),
+            trigger: ['change', 'blur'],
+          }
         ],
-        age: [
-          { pattern: /^([1-9][0-9]{0,1}|120)$/g, message: '年龄只能为0到120', trigger: 'change' }
-        ],
-        idCard: [
-          this.$rules.required('请输入身份证号'),
-          { type: 'number', len: 18, message: '请输入正确的身份证号' }
-        ],
-        address: [
-          this.$rules.required('请输入家庭地址')
+        desc: [
+          {
+            required: true,
+            message: this.$t('rules.desc'),
+            trigger: ['change', 'blur'],
+          }
         ],
       },
 
     }
   },
   computed: {
+    productTypeSelectedLabel() {
+      const value = this.productTypeName ? `：(${this.productTypeName})` : ''
+      return this.label + value
+    },
   },
   onLoad(options) {
     // this.findUserInfo()
@@ -88,6 +69,10 @@ export default {
     this.$refs.uForm.setRules(this.rules)
   },
   methods: {
+    productTypeChange(data) {
+      this.productTypeName = data.title
+      this.form.product_type = data.value
+    },
     submit() {
       this.$refs.uForm.validate(valid => {
         if (valid) {
@@ -99,11 +84,10 @@ export default {
       })
     },
     updateUserInfo() {
-      uni.showLoading({ title: '修改中...' })
-      userApi.updateUserInfo(this.form).then(res => {
-        uni.showToast({ title: '修改成功' })
-        uni.setStorageSync('userInfo', JSON.stringify(res))
-        uni.navigateTo({ url: '/pages/label-select/index' })
+      uni.showLoading()
+      this.$request('user/completeUserInfo', this.form).then(res => {
+        uni.setStorageSync('productType', this.form.product_type)
+        uni.switchTab({ url: '/pages/index/index' })
       }).finally(() => {
         uni.hideLoading()
       })
@@ -113,8 +97,8 @@ export default {
 </script>
 <style lang="scss">
 	.register {
+    padding: 10px 20px;
 		.main-content {
-      font-family: $ftf;
       margin-top: 51rpx;
       .register-form {
         padding-left: 20rpx;

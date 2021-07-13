@@ -3,7 +3,7 @@
     <login-top />
     <view class="tabs">
       <view class="tab-item">
-        <view class="item-text">{{ $t('index.smsLogin') }}</view>
+        <view class="item-text">{{ $t('login.smsLogin') }}</view>
         <view class="item-line"></view>
       </view>
 
@@ -15,14 +15,16 @@
             <u-form-item prop="mobile" left-icon="/static/login/account.png"
                          :left-icon-style="leftIconStyle">
               <u-input v-model="loginParams.mobile" type="number" clearable
-                       left-icon="/static/login/account.png" placeholder="请输入手机号"
+                       left-icon="/static/login/account.png"
+                       :placeholder="$t('login.phone')"
                        maxlength="11"></u-input>
             </u-form-item>
-            <u-form-item prop="mobile" left-icon="/static/login/desc.png"
-                         :left-icon-style="leftIconStyle">
-              <u-input v-model="loginParams.desc" clearable placeholder="请输入激活申请说明"
-                       maxlength="120"></u-input>
-            </u-form-item>
+<!--            <u-form-item prop="desc" left-icon="/static/login/desc.png"-->
+<!--                         :left-icon-style="leftIconStyle">-->
+<!--              <u-input v-model="loginParams.desc" clearable-->
+<!--                       :placeholder="$t('login.desc')"-->
+<!--                       maxlength="120"></u-input>-->
+<!--            </u-form-item>-->
 <!--            <u-form-item prop="product_type" left-icon="/static/login/future.png"-->
 <!--                         :left-icon-style="leftIconStyle">-->
 <!--              <u-radio-group v-model="loginParams.product_type">-->
@@ -32,11 +34,12 @@
 <!--            </u-form-item>-->
             <u-form-item prop="smsCode" left-icon="/static/login/sms-edit.png"
                          :left-icon-style="leftIconStyle">
-              <u-input placeholder="请输入验证码" v-model="loginParams.code" maxlength="6"></u-input>
+              <u-input :placeholder="$t('login.sms')" v-model="loginParams.code"
+                       maxlength="6"></u-input>
               <template slot="right">
                 <view :class="['sms-code-btn', smsCodeBtnDisabled ? 'disabled': '' ]"
                       @click="getSmsCode">
-                  <text class="get-text" v-if="!smsCodeBtnDisabled">获取验证码</text>
+                  <text class="get-text" v-if="!smsCodeBtnDisabled">{{$t('login.sms.get')}}</text>
                   <text v-else class="sms-code-resend">{{`${codeSeconds}s`}}</text>
                 </view>
               </template>
@@ -53,8 +56,10 @@
 <!--            </u-form-item>-->
           </u-form>
         </view>
-        <u-button class="confirm-btn" :disabled="!loginParams.code" :loading="loading" @click="toLogin">
-          登录
+        <u-button class="confirm-btn" :disabled="!loginParams.code" :loading="loading"
+                  open-type="getUserProfile"
+                  @click="toLogin">
+          {{$t('login.submit')}}
         </u-button>
 <!--        <view class="login-footer">-->
 <!--          <view class="login-footer-left" @click="register">-->
@@ -67,8 +72,6 @@
 	</view>
 </template>
 <script>
-// import { loginParams } from 'utils/devTestData'
-import userApi from '@/api/user'
 import { getDeviceUUID } from '@/utils'
 import LoginTop from './components/LoginTop.vue'
 
@@ -79,8 +82,8 @@ export default {
       loginParams: {
         mobile: '13588043792',
         code: '123456',
-        desc: '',
-        product_type: 1,
+        // desc: 'I want你们',
+        // product_type: 1,
       },
       pwdType: 'password',
       loading: false,
@@ -92,23 +95,18 @@ export default {
       rules: {
         mobile: [
           {
-            required: true,
-            message: '请输入手机号',
-            trigger: ['change', 'blur'],
-          },
-          {
             validator: (rule, value, callback) => this.$u.test.mobile(value),
-            message: '手机号码不正确',
+            message: this.$t('rules.phone'),
             trigger: ['change', 'blur'],
           }
         ],
-        desc: [
-          {
-            required: true,
-            message: '请输入手机号',
-            trigger: ['change', 'blur'],
-          }
-        ],
+        // desc: [
+        //   {
+        //     required: true,
+        //     message: this.$t('rules.desc'),
+        //     trigger: ['change', 'blur'],
+        //   }
+        // ],
       },
       leftIconStyle: {
         width: '50rpx',
@@ -144,7 +142,7 @@ export default {
       this.$request('user/setVerifyCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {
-        this.$toast('验证码发送成功')
+        this.$toast(this.$t('login.sms.success'))
         this.smsCodeBtnDisabled = true
         this.codeSeconds = 60
         this.interval = setInterval(() => {
