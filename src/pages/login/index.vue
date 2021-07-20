@@ -178,9 +178,14 @@ export default {
       this.$refs.uForm.validate(valid => {
         if (valid) {
           this.loading = true
+          let origin = 'web'
+          // #ifdef MP-WEIXIN
+          origin = 'mp'
+          // #endif
           this.$request('user/loginBySms', {
             ...this.loginParams,
             deviceId: getDeviceUUID(),
+            origin,
           }).then(res => {
             res = res.data
             const userInfo = res.userInfo
