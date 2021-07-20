@@ -23,14 +23,14 @@ export default {
           value: 'zh-CN',
           icon: '/static/icon/spot-product.png',
           bgImg: '/static/img/bg-people.png',
-          class: 'cn'
+          class: 'cn',
         },
         {
           title: 'English',
           value: 'en-US',
           icon: '/static/icon/future-product.png',
           bgImg: '/static/img/bg-record.png',
-          class: 'en'
+          class: 'en',
         }
       ],
     }
@@ -48,7 +48,7 @@ export default {
       uni.setStorageSync('lang', value)
       uni.showToast({ title: this.$t('choose.success') })
       setTimeout(() => {
-        uni.navigateBack()
+        uni.switchTab({ url: '/pages/index/index' })
       }, 500)
     },
   },
@@ -58,10 +58,10 @@ export default {
 <style lang="scss" scoped>
   .card-item{
     &.cn{
-      background: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
+      background-image: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
     }
     &.en{
-      background: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
+      background-image: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
     }
   }
 </style>
