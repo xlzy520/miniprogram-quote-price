@@ -25,7 +25,7 @@
         <view class="desc-title card-title font-bold text-xl px-3 pt-3 text-red-300">
           {{$t('product.detail.desc')}}</view>
         <view class="product-desc p-3">
-          <u-parse :html="detail.desc" :show-with-animation="true"></u-parse>
+          <u-parse :html="productDesc" :show-with-animation="true"></u-parse>
         </view>
       </view>
     </view>
@@ -127,6 +127,9 @@ export default {
       const userInfo = uni.getStorageSync('userInfo')
       const id = typeof userInfo === 'string' ? JSON.parse(userInfo)._id : userInfo._id
       return id
+    },
+    productDesc() {
+      return this.isCN ? this.detail.desc : this.detail.desc_en
     },
   },
   methods: {
