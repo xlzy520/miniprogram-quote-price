@@ -115,12 +115,16 @@ module.exports = class UserService extends Service {
     })
   }
 
-  async loginBySms({ mobile, code, desc }) {
+  async loginBySms({
+    mobile, code, desc, origin, deviceId,
+  }) {
+    console.log(origin, mobile);
     const regInfo = await this.ctx.uniID.loginBySms({
       mobile,
       code,
       role: ['user'],
     })
+    await this.loginLog(regInfo, { origin, deviceId }, regInfo.type)
     if (!regInfo.code) {
       await this.checkToken(regInfo.token, {
         needPermission: true,
@@ -177,10 +181,12 @@ module.exports = class UserService extends Service {
   async loginLog(res = {}, params, type = 'login') {
     const now = Date.now()
     const uniIdLogCollection = this.db.collection('uni-id-log')
+    console.log(this.ctx.context.CLIENTIP);
     const logData = {
-      deviceId: params.deviceId || this.ctx.DEVICEID,
-      ip: params.ip || this.ctx.CLIENTIP,
+      deviceId: params.deviceId || this.ctx.context.DEVICEID,
+      ip: this.ctx.context.CLIENTIP,
       type,
+      origin: params.origin,
       create_date: now,
     }
 

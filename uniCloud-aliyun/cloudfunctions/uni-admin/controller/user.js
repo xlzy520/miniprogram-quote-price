@@ -23,6 +23,8 @@ module.exports = class UserController extends Controller {
       mobile,
       code,
       desc,
+      origin,
+      deviceId
     } = this.ctx.data
     if (!code) {
       return {
@@ -42,6 +44,8 @@ module.exports = class UserController extends Controller {
       mobile,
       code,
       desc,
+      origin,
+      deviceId
     })
   }
 
