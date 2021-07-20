@@ -133,11 +133,12 @@ export default {
       uni.navigateTo({ url: '/pages/login/index' })
     },
     toPage(item) {
-      if (!this.userInfo.phone) {
-        this.toLogin()
-        return
-      }
-      uni.navigateTo({ url: item.url })
+      uni.showToast({ title: '正在开发中...', icon: 'none' })
+      // if (!this.userInfo.mobile) {
+      //   this.toLogin()
+      //   return
+      // }
+      // uni.navigateTo({ url: item.url })
     },
     editUserInfo() {
       uni.navigateTo({ url: '/pages/mine/myInfo' })
