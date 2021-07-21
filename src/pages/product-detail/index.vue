@@ -25,7 +25,7 @@
         <view class="desc-title card-title font-bold text-xl px-3 pt-3 text-red-300">
           {{$t('product.detail.desc')}}</view>
         <view class="product-desc p-3">
-          <u-parse :html="productDesc" :show-with-animation="true"></u-parse>
+          <u-parse :html="detail.desc" :show-with-animation="true"></u-parse>
         </view>
       </view>
     </view>
@@ -128,9 +128,6 @@ export default {
       const id = typeof userInfo === 'string' ? JSON.parse(userInfo)._id : userInfo._id
       return id
     },
-    productDesc() {
-      return this.isCN ? this.detail.desc : this.detail.desc_en
-    },
   },
   methods: {
     formatPrice(data) {
@@ -190,6 +187,8 @@ export default {
           ...data,
           trade_type: TradeTypeEnum[data.trade_type],
           arrive_time: formatTime(data.arrive_time),
+          name: this.getLocale(data, 'name'),
+          desc: this.getLocale(data, 'desc'),
         }
       }).finally(() => {
         uni.hideLoading()
@@ -227,8 +226,8 @@ export default {
       //   const data = res.data
       // })
     },
-    getLocaleName(item) {
-      return this.isCN ? item.name : item.name_en
+    getLocale(item, key) {
+      return this.isCN ? item[key] : item[key+'_en']
     },
     handleItem(item) {
       wx.navigateTo({ url: '/pages/exhibition-detail/index?id=' + item.id })
