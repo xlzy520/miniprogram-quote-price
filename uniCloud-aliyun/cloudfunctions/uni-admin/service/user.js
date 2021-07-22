@@ -116,9 +116,9 @@ module.exports = class UserService extends Service {
   }
 
   async loginBySms({
-    mobile, code, desc, origin, deviceId,
+    mobile, code, desc, origin, deviceId, wxUserInfo,
   }) {
-    console.log(origin, mobile);
+    console.log(origin, mobile)
     const regInfo = await this.ctx.uniID.loginBySms({
       mobile,
       code,
@@ -131,32 +131,51 @@ module.exports = class UserService extends Service {
         needUserInfo: false,
       })
       if (regInfo.type === 'register') {
-        await this.ctx.uniID.updateUser({
+        let payload = {
           uid: regInfo.uid,
           desc,
           status: 2,
-        })
+        }
+        if (wxUserInfo) {
+          console.log(wxUserInfo)
+          payload = { ...payload, ...wxUserInfo, origin }
+        }
+        await this.ctx.uniID.updateUser(payload)
         regInfo.userInfo.status = 2
       } else if (regInfo.userInfo.status !== 0) {
-        return {
-          success: false,
-          msg: '',
-          data: {
-            status: regInfo.userInfo.status,
-          },
+        console.log('wxUserInfo', wxUserInfo, typeof wxUserInfo)
+        if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
+          wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
+          console.log('wxUserInfo', wxUserInfo)
+          const res = await this.ctx.uniID.updateUser({...wxUserInfo, uid: regInfo.uid})
+          console.log(res);
         }
-      } else {
         return {
-          success: true,
-          msg: '',
-          data: {
-            ...regInfo,
-          },
+          code: 0,
+          status: regInfo.userInfo.status,
+          product_type: regInfo.userInfo.product_type,
+          ...regInfo,
         }
       }
     }
 
-    return regInfo
+    if (regInfo.userInfo) {
+      if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
+        wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
+        await this.ctx.uniID.updateUser(wxUserInfo)
+      }
+      return {
+        code: 0,
+        status: regInfo.userInfo.status,
+        product_type: regInfo.userInfo.product_type,
+        ...regInfo,
+      }
+    }
+
+    return {
+      code: 0,
+      ...regInfo,
+    }
   }
 
   async sendSmsCode(mobile = []) {
@@ -181,7 +200,7 @@ module.exports = class UserService extends Service {
   async loginLog(res = {}, params, type = 'login') {
     const now = Date.now()
     const uniIdLogCollection = this.db.collection('uni-id-log')
-    console.log(this.ctx.context.CLIENTIP);
+    console.log(this.ctx.context.CLIENTIP)
     const logData = {
       deviceId: params.deviceId || this.ctx.context.DEVICEID,
       ip: this.ctx.context.CLIENTIP,

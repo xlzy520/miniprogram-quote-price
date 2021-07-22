@@ -24,7 +24,8 @@ module.exports = class UserController extends Controller {
       code,
       desc,
       origin,
-      deviceId
+      deviceId,
+      wxUserInfo
     } = this.ctx.data
     if (!code) {
       return {
@@ -45,7 +46,8 @@ module.exports = class UserController extends Controller {
       code,
       desc,
       origin,
-      deviceId
+      deviceId,
+      wxUserInfo
     })
   }
 

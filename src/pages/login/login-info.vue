@@ -87,6 +87,7 @@ export default {
       uni.showLoading()
       this.$request('user/completeUserInfo', this.form).then(res => {
         uni.setStorageSync('productType', this.form.product_type)
+        uni.showToast({ title: this.$t('choose.success') })
         uni.switchTab({ url: '/pages/index/index' })
       }).finally(() => {
         uni.hideLoading()

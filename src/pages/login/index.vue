@@ -92,6 +92,7 @@ export default {
       smsCodeBtnDisabled: false,
       userInfo: null,
       interval: null,
+      hadGetSms: false,
       rules: {
         mobile: [
           {
@@ -139,6 +140,7 @@ export default {
     },
     // 发送验证码并进入倒计时
     getSmsCode() {
+      this.hadGetSms = true
       this.$request('user/setVerifyCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {
@@ -152,6 +154,8 @@ export default {
           this.codeSeconds--
         }, 1000)
         console.log(res)
+      }).catch(() => {
+        this.clearSmsInterval()
       }).finally(() => {
         uni.hideLoading()
       })
@@ -177,34 +181,56 @@ export default {
     toLogin() {
       this.$refs.uForm.validate(valid => {
         if (valid) {
+          if (!this.hadGetSms) {
+            this.$toast('请先获取验证码。')
+            return
+          }
+          uni.login({
+            success: (res) => {
+              console.log(res)
+            },
+          })
           this.loading = true
           let origin = 'web'
+          let wxUserInfo = ''
           // #ifdef MP-WEIXIN
           origin = 'mp'
+          wxUserInfo = uni.getStorageSync('wxUserInfo')
           // #endif
           this.$request('user/loginBySms', {
             ...this.loginParams,
             deviceId: getDeviceUUID(),
             origin,
+            wxUserInfo,
           }).then(res => {
-            res = res.data
-            const userInfo = res.userInfo
+            const { userInfo, status, product_type } = res;
+            console.log(res)
+            // 用户状态：0 激活 1 关停 2 待激活 3 审核拒绝
             if (res.type === 'register') {
-              this.$toast('注册成功, 待激活状态, 管理员将尽快进行审核。')
-            } else if (userInfo.status === 0) {
+              this.$toast('进入待激活状态, 请完善信息以完成注册。')
+              if (product_type === undefined) {
+                uni.navigateTo({ url: '/pages/login/login-info' })
+              }
+            } else if (status === 0) {
               this.setLocal(res)
-              if (userInfo.product_type === undefined) {
-                uni.navigateTo({ url: '/pages/chooseProductType/index' })
+              if (product_type === undefined) {
+                uni.navigateTo({ url: '/pages/login/login-info' })
               } else {
                 uni.switchTab({ url: '/pages/index/index' })
               }
-            } else if (userInfo.status === 2) {
-              this.$toast('待激活状态, 管理员将尽快进行审核。')
-            } else if (userInfo.status === 1) {
+            } else if (status === 2) {
+              if (product_type === undefined) {
+                this.setLocal(res)
+                uni.navigateTo({ url: '/pages/login/login-info' })
+              } else {
+                this.$toast('待激活状态, 管理员将尽快进行审核。')
+              }
+            } else if (status === 1) {
               this.$toast('审核拒绝, 账号已停用。')
             }
           }).finally(() => {
             this.loading = false
+            this.clearSmsInterval()
           })
         }
       })

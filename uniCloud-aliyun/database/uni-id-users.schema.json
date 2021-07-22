@@ -22,7 +22,7 @@
 			"title": "passwordSecret",
 			"description": "密码使用的passwordSecret版本"
 		},
-		"nickname": {
+		"nickName": {
 			"bsonType": "string",
 			"title": "昵称",
 			"description": "用户昵称",
@@ -103,7 +103,7 @@
 				"value": 1
 			}]
 		},
-		"avatar": {
+		"avatarUrl": {
 			"bsonType": "string",
 			"title": "头像地址",
 			"description": "头像地址",

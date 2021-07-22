@@ -1,6 +1,6 @@
 function reLaunchToLogin(code) {
   if (typeof code === 'string' && code.indexOf('TOKEN_INVALID') === 0) {
-    uni.showToast({ title: 'token已过期', icon: "none" })
+    uni.showToast({ title: 'token已过期', icon: 'none' })
     uni.reLaunch({
       url: '/pages/login/index',
     })
@@ -8,6 +8,10 @@ function reLaunchToLogin(code) {
 }
 
 const db = uniCloud.database()
+
+const errorMap = {
+  INVOKE_FUNCTION_FAILED: '接口超时，请稍后再试',
+}
 
 db.on('error', function ({
   code, // 错误码详见https://uniapp.dcloud.net.cn/uniCloud/clientdb?id=returnvalue
@@ -29,15 +33,13 @@ export function request(action, data, {
   }).then(({
     result,
   }) => {
+    console.log(result, '===========打印的 ------ ')
     if (!result) {
-      return Promise.resolve(result)
+      return Promise.reject(result)
     }
     if (result.code) {
       reLaunchToLogin(result.code)
-      // const err = new Error(result.message)
-      // err.code = result.code
-      const err = result
-      return Promise.reject(err)
+      return Promise.reject(result)
     }
     const {
       token,
@@ -49,13 +51,17 @@ export function request(action, data, {
       //   tokenExpired,
       // })
     }
-    return Promise.resolve(result)
+    if (result.code === 0) {
+      return Promise.resolve(result)
+    } else {
+      return Promise.reject(result)
+    }
   }).catch(err => {
     if (showModal) {
       uni.showToast({
-        title: err.message || '请求服务失败',
+        title: errorMap[err.code] || err.message || '请求服务失败',
         showCancel: false,
-        icon: 'none'
+        icon: 'none',
       })
     }
     return Promise.reject(err)

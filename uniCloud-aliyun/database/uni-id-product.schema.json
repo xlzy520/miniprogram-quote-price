@@ -2,8 +2,8 @@
 	"bsonType": "object",
 	"required": [],
 	"permission": {
-//      "((doc.type==0 &&'futures_manage' in auth.role) || (doc.type==1 &&'spot_manage' in auth.role)) || ('user' in auth.role) && doc.isDeleted == 0"
-		"read": true,
+		"read": "((doc.type==0 &&'futures_manage' in auth.role) || (doc.type==1 &&'spot_manage' in auth.role)) || ('user' in auth.role) && doc.isDeleted == 0",
+//		"read": true,
 		"create": "'futures_manage' in auth.role || 'spot_manage' in auth.role",
 		"update": "(doc.type == 0 && 'futures_manage' in auth.role) || (doc.type == 1 && 'spot_manage' in auth.role)",
 		"delete": false
