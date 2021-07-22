@@ -51,7 +51,7 @@ export function request(action, data, {
       //   tokenExpired,
       // })
     }
-    if (result.code === 0) {
+    if (result.code === 0 || !result.code) {
       return Promise.resolve(result)
     } else {
       return Promise.reject(result)

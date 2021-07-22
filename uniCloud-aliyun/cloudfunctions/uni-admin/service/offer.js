@@ -14,10 +14,13 @@ module.exports = class UserService extends Service {
     return !!total
   }
 
-  async getMyHistoryOffer() {
-    return this.db.collection('offer').where({
+  async getMyHistoryOffer(product_id) {
+    const payload = {
       user_id: this.ctx.auth.uid,
       isDeleted: 0,
-    }).orderBy('create_date', 'desc').get()
+    }
+    payload.product_id = product_id
+    return this.db.collection('offer').where(payload)
+      .orderBy('create_date', 'desc').get()
   }
 }

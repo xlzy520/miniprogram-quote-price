@@ -19,6 +19,9 @@ module.exports = class UserController extends Controller {
   }
 
   async getMyHistoryOffer() {
-    return this.service.offer.getMyHistoryOffer(this.ctx.data.uid)
+    const {
+      product_id,
+    } = this.ctx.data
+    return this.service.offer.getMyHistoryOffer(product_id)
   }
 }

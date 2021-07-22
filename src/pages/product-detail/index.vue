@@ -69,7 +69,7 @@
 <!--                      @confirm="selectCurrency"/>-->
           </u-form-item>
           <u-form-item :label="$t('common.price')" prop="price" :border-bottom="false">
-            <u-input class="u-border-bottom" v-model="form.price" type="number" focus
+            <u-input class="u-border-bottom" v-model="form.price" type="digit" focus
                      :placeholder="$t('product.action.offer.label')"/>
           </u-form-item>
           <u-form-item>
@@ -200,7 +200,9 @@ export default {
       this.getMyHistoryOffer(true)
     },
     getMyHistoryOffer(isRefresh) {
-      this.$request('offer/getMyHistoryOffer').then(res => {
+      this.$request('offer/getMyHistoryOffer', {
+        product_id: this.id,
+      }).then(res => {
         if (isRefresh) {
           uni.showToast({
             title: this.$t('common.refresh.success'),
@@ -227,7 +229,7 @@ export default {
       // })
     },
     getLocale(item, key) {
-      return this.isCN ? item[key] : item[key+'_en']
+      return this.isCN ? item[key] : item[key + '_en']
     },
     handleItem(item) {
       wx.navigateTo({ url: '/pages/exhibition-detail/index?id=' + item.id })

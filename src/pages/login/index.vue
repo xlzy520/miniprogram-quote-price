@@ -141,6 +141,7 @@ export default {
     // 发送验证码并进入倒计时
     getSmsCode() {
       this.hadGetSms = true
+      uni.showLoading()
       this.$request('user/setVerifyCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {
@@ -216,6 +217,7 @@ export default {
               if (product_type === undefined) {
                 uni.navigateTo({ url: '/pages/login/login-info' })
               } else {
+                uni.setStorageSync('productType', product_type)
                 uni.switchTab({ url: '/pages/index/index' })
               }
             } else if (status === 2) {

@@ -2,9 +2,9 @@
 	"bsonType": "object",
 	"required": [],
 	"permission": {
-		"read": false,
+		"read": "doc.user_id == auth.uid && doc.isDeleted == 0",
 		"create": true,
-		"update": "(doc.user_id == auth.uid) && isDeleted == 0",
+		"update": "(doc.user_id == auth.uid) && doc.isDeleted == 0",
 		"delete": false
 	},
 	"properties": {

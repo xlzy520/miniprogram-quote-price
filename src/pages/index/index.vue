@@ -4,7 +4,7 @@
               :action-text="$t('common.search')"
               :placeholder="$t('search.keyword')"
               @search="search" @custom="search" @clear="clear"></u-search>
-    <unicloud-db ref="udb" @load="tableLoad" collection="uni-id-product" :options="pageOptions"
+    <unicloud-db ref="udb" @error="handleError" collection="uni-id-product" :options="pageOptions"
                  :where="where" field="_id,name,name_en,imgUrls,price,status,create_date"
                  page-data="add" :orderby="orderby" :getcount="true"
                  :page-size="pageOptions.size"
@@ -39,7 +39,10 @@ export default {
   data() {
     return {
       keyword: '',
-      where: '',
+      where: {
+        isDeleted: 0,
+        type: uni.getStorageSync('productType')
+      },
       loading: false,
       orderby: 'create_date',
       pageOptions: {
@@ -63,16 +66,19 @@ export default {
     },
     search(value) {
       const queryRe = new RegExp(value, 'i')
-      this.where = ['name', 'name_en'].map(name => queryRe + '.test(' + name + ')').join(' || ')
+      const searchKeys = ['name', 'name_en']
+      searchKeys.forEach(v => {
+        this.where[v] = queryRe
+      })
       this.$nextTick(() => {
         this.loadData()
       })
     },
     handleItem(item) {
-      wx.navigateTo({ url: '/pages/product-detail/index?id=' + item._id })
+      uni.navigateTo({ url: '/pages/product-detail/index?id=' + item._id })
     },
-    tableLoad(data, ended) {
-
+    handleError(err) {
+      console.log(err.message)
     },
     loadData(clear = true, callback) {
       this.$refs.udb.loadData({

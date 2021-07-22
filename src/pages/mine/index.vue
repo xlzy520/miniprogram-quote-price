@@ -59,7 +59,7 @@ export default {
         {
           title: this.$t('mine.offer'),
           // desc: '我的报价记录',
-          url: '/pages/mine/mySign',
+          url: '/pages/myOffer/index',
           icon: '/static/icon/mine/icon-sign.png',
         }
         // {
@@ -133,12 +133,12 @@ export default {
       uni.navigateTo({ url: '/pages/login/index' })
     },
     toPage(item) {
-      uni.showToast({ title: '正在开发中...', icon: 'none' })
-      // if (!this.userInfo.mobile) {
-      //   this.toLogin()
-      //   return
-      // }
-      // uni.navigateTo({ url: item.url })
+      // uni.showToast({ title: '正在开发中...', icon: 'none' })
+      if (!this.userInfo.mobile) {
+        this.toLogin()
+        return
+      }
+      uni.navigateTo({ url: item.url })
     },
     editUserInfo() {
       uni.navigateTo({ url: '/pages/mine/myInfo' })

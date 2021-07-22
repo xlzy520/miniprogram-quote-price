@@ -19,7 +19,7 @@
 		},
 		"type": {
 			"bsonType": "string",
-			"enum": ["login", "logout"],
+			"enum": ["login", "logout", "register"],
 			"description": "登录类型"
 		},
 		"state": {

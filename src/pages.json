@@ -4,15 +4,23 @@
   },
   "pages": [
     {
-      "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
-    {
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "首页(Home)"
+      }
+    },
+    {
+      "path": "pages/myOffer/index",
+      "style": {
+        "navigationBarTitleText": "我的报价"
+      }
+    },
+
+
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
       }
     },
     {
