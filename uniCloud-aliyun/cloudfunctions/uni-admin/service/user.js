@@ -92,17 +92,6 @@ module.exports = class UserService extends Service {
     })
   }
 
-  async setVerifyCode(mobile) {
-    const randomStr = '00000' + Math.floor(Math.random() * 1000000)
-    const code = randomStr.substring(randomStr.length - 6)
-    return this.ctx.uniID.setVerifyCode({
-      mobile,
-      code: '123456',
-      expiresIn: 180,
-      type: 'login',
-    })
-  }
-
   async completeUserInfo({ product_type, desc }, token) {
     await this.checkToken(token, {
       needPermission: true,
@@ -116,39 +105,71 @@ module.exports = class UserService extends Service {
   }
 
   async loginBySms({
-    mobile, code, desc, origin, deviceId, wxUserInfo,
+    mobile, code, desc, origin, deviceId, wxUserInfo, wxLoginCode,
   }) {
-    console.log(origin, mobile)
-    const regInfo = await this.ctx.uniID.loginBySms({
-      mobile,
-      code,
-      role: ['user'],
-    })
-    await this.loginLog(regInfo, { origin, deviceId }, regInfo.type)
-    if (!regInfo.code) {
-      await this.checkToken(regInfo.token, {
-        needPermission: true,
-        needUserInfo: false,
+    try {
+      // const codeRes = await this.setVerifyCode(mobile, code)
+      // if (codeRes) {
+      //   console.log(codeRes);
+      // }
+      const regInfo = await this.ctx.uniID.loginBySms({
+        mobile,
+        code,
+        role: ['user'],
       })
-      if (regInfo.type === 'register') {
-        let payload = {
-          uid: regInfo.uid,
-          desc,
-          status: 2,
+      await this.loginLog(regInfo, { origin, deviceId }, regInfo.type)
+      if (!regInfo.code) {
+        await this.checkToken(regInfo.token, {
+          needPermission: true,
+          needUserInfo: false,
+        })
+        if (regInfo.type === 'register') {
+          let payload = {
+            uid: regInfo.uid,
+            desc,
+            status: 2,
+          }
+          if (wxUserInfo) {
+            const res = await this.ctx.uniID.code2SessionWeixin({
+              code: wxLoginCode,
+            })
+            const { openid: wx_openid, unionid: wx_unionid } = res
+            // console.log(wxUserInfo)
+            payload = {
+              ...payload, ...wxUserInfo, origin, wx_unionid, wx_openid,
+            }
+          }
+          await this.ctx.uniID.updateUser(payload)
+          regInfo.userInfo.status = 2
+        } else if (regInfo.userInfo.status !== 0) {
+          if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
+            wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
+            await this.ctx.uniID.updateUser({ ...wxUserInfo, uid: regInfo.uid })
+          }
+          return {
+            code: 0,
+            status: regInfo.userInfo.status,
+            product_type: regInfo.userInfo.product_type,
+            ...regInfo,
+          }
         }
-        if (wxUserInfo) {
-          console.log(wxUserInfo)
-          payload = { ...payload, ...wxUserInfo, origin }
-        }
-        await this.ctx.uniID.updateUser(payload)
-        regInfo.userInfo.status = 2
-      } else if (regInfo.userInfo.status !== 0) {
-        console.log('wxUserInfo', wxUserInfo, typeof wxUserInfo)
+      }
+
+      if (regInfo.userInfo) {
         if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
           wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
-          console.log('wxUserInfo', wxUserInfo)
-          const res = await this.ctx.uniID.updateUser({...wxUserInfo, uid: regInfo.uid})
-          console.log(res);
+          const resWeixin = await this.ctx.uniID.code2SessionWeixin({
+            code: wxLoginCode,
+          })
+          const { openid: wx_openid, unionid: wx_unionid } = resWeixin
+          console.log(wxLoginCode, resWeixin, wx_openid, wx_unionid)
+          const updateRes = await this.ctx.uniID.updateUser({
+            ...wxUserInfo,
+            uid: regInfo.uid,
+            wx_unionid,
+            wx_openid,
+          })
+          console.log(updateRes)
         }
         return {
           code: 0,
@@ -157,43 +178,47 @@ module.exports = class UserService extends Service {
           ...regInfo,
         }
       }
-    }
 
-    if (regInfo.userInfo) {
-      if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
-        wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
-        await this.ctx.uniID.updateUser(wxUserInfo)
-      }
       return {
         code: 0,
-        status: regInfo.userInfo.status,
-        product_type: regInfo.userInfo.product_type,
         ...regInfo,
       }
-    }
-
-    return {
-      code: 0,
-      ...regInfo,
+    } catch (e) {
+      console.log(e)
+      return e
     }
   }
 
-  async sendSmsCode(mobile = []) {
-    const templateId = '' // 替换为自己申请的模板id
-    if (!templateId) {
-      return {
-        code: 500,
-        msg: 'sendSmsCode需要传入自己的templateId，参考https://uniapp.dcloud.net.cn/uniCloud/uni-id?id=sendsmscode',
-      }
-    }
-    const randomStr = '00000' + Math.floor(Math.random() * 1000000)
-    const code = randomStr.substring(randomStr.length - 6)
-    return this.ctx.uniID.sendSmsCode({
+  async code2SessionWeixin({ code }) {
+    const appid = ''
+  }
+
+  async sendTmpMessage({ openid, token }) {
+    return 123
+  }
+
+  async setVerifyCode(mobile, code) {
+    return this.ctx.uniID.setVerifyCode({
       mobile,
-      code,
+      code: '123456',
+      expiresIn: 180,
       type: 'login',
-      templateId,
     })
+  }
+
+  async sendSmsCode(mobile) {
+    return uniCloud.callFunction({
+      name: 'aliSendCode',
+      data: {
+        mobile,
+      },
+    })
+    // return this.ctx.uniID.sendSmsCode({
+    //   mobile,
+    //   code,
+    //   type: 'login',
+    //   templateId,
+    // })
   }
 
   // 登录记录

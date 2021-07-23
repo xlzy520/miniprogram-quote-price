@@ -56,10 +56,10 @@ export default {
 <style lang="scss" scoped>
   .card-item{
     &.spot{
-      background: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
+      background: $card-bg-blue;
     }
     &.futures{
-      background: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
+      background: $card-bg-green;
     }
   }
 </style>

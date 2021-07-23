@@ -28,6 +28,7 @@ export const handleLoginAuth = (successCallback, errorCallback, finallyCallback)
     successCallback && successCallback()
   }).catch((e) => {
     if (e.errMsg === 'getUserProfile:fail auth deny') {
+      uni.showToast({ title: '用户信息未授权', icon: 'none'})
       // Taro.atMessage({
       //   message: getLocaleHelper().t('error.workOrder.unAuthorized'),
       //   type: 'error',

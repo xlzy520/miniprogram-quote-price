@@ -28,6 +28,8 @@
 </template>
 
 <script>
+import { errorHandler } from "@/utils/request";
+
 export default {
   name: '',
   props: {
@@ -78,7 +80,7 @@ export default {
       uni.navigateTo({ url: '/pages/product-detail/index?id=' + item._id })
     },
     handleError(err) {
-      console.log(err.message)
+      errorHandler(err)
     },
     loadData(clear = true, callback) {
       this.$refs.udb.loadData({

@@ -54,38 +54,38 @@
     "quickapp" : {},
     /* 快应用特有相关 */
     "mp-weixin" : {
-      "appid" : "wx7f8b189a342eb7ba",
-      "cloudfunctionRoot": "/static/cloudfunctions-tcb/",
-      "setting" : {
-        "urlCheck": false,
-        "es6": true,
-        "enhance": true,
-        "postcss": true,
-        "preloadBackgroundData": false,
-        "minified": true,
-        "newFeature": true,
-        "coverView": true,
-        "nodeModules": true,
-        "autoAudits": false,
-        "showShadowRootInWxmlPanel": true,
-        "scopeDataCheck": true,
-        "uglifyFileName": false,
-        "checkInvalidKey": true,
-        "checkSiteMap": true,
-        "uploadWithSourceMap": true,
-        "babelSetting": {
-          "ignore": [],
-          "disablePlugins": [],
-          "outputPath": ""
-        },
-        "useIsolateContext": true,
-        "useCompilerModule": true,
-        "userConfirmedUseCompilerModuleSwitch": false,
-        "packNpmManually": false,
-        "packNpmRelationList": [],
-        "minifyWXSS": true,
-        "useMultiFrameRuntime": false,
-        "useApiHook": true
+        "appid" : "wx7f8b189a342eb7ba",
+        "cloudfunctionRoot" : "/static/cloudfunctions-tcb/",
+        "setting" : {
+            "urlCheck" : false,
+            "es6" : true,
+            "enhance" : true,
+            "postcss" : true,
+            "preloadBackgroundData" : false,
+            "minified" : true,
+            "newFeature" : true,
+            "coverView" : true,
+            "nodeModules" : true,
+            "autoAudits" : false,
+            "showShadowRootInWxmlPanel" : true,
+            "scopeDataCheck" : true,
+            "uglifyFileName" : false,
+            "checkInvalidKey" : true,
+            "checkSiteMap" : true,
+            "uploadWithSourceMap" : true,
+            "babelSetting" : {
+                "ignore" : [],
+                "disablePlugins" : [],
+                "outputPath" : ""
+            },
+            "useIsolateContext" : true,
+            "useCompilerModule" : true,
+            "userConfirmedUseCompilerModuleSwitch" : false,
+            "packNpmManually" : false,
+            "packNpmRelationList" : [],
+            "minifyWXSS" : true,
+            "useMultiFrameRuntime" : false,
+            "useApiHook" : true
         },
         "usingComponents" : true
     },
@@ -102,12 +102,14 @@
         "usingComponents" : true
     },
     "h5" : {
-        "optimization" : {
+      "template": "template.h5.html",
+      "optimization" : {
             "treeShaking" : {
                 "enable" : true //启用摇树优化
             }
         },
         "devServer" : {}, // H5代理功能，用于解决跨域
+
         // "port": 9527,
         // "proxy": {
         //   "/api": {
@@ -117,6 +119,7 @@
         // }
         "router" : {
             "mode" : "hash"
-        }
+        },
+        "title" : "木材报价采集"
     }
 }

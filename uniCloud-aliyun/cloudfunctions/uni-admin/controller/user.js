@@ -25,7 +25,8 @@ module.exports = class UserController extends Controller {
       desc,
       origin,
       deviceId,
-      wxUserInfo
+      wxUserInfo,
+      wxLoginCode,
     } = this.ctx.data
     if (!code) {
       return {
@@ -47,7 +48,8 @@ module.exports = class UserController extends Controller {
       desc,
       origin,
       deviceId,
-      wxUserInfo
+      wxUserInfo,
+      wxLoginCode,
     })
   }
 
@@ -86,9 +88,9 @@ module.exports = class UserController extends Controller {
 
   async setVerifyCode() {
     const {
-      mobile,
+      mobile, code,
     } = this.ctx.data
-    return this.service.user.setVerifyCode(mobile)
+    return this.service.user.setVerifyCode(mobile, code)
   }
 
   async sendSmsCode() {

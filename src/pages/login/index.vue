@@ -61,6 +61,18 @@
                   @click="handleLoginClick">
           {{$t('login.submit')}}
         </u-button>
+                <view class="login-footer">
+                  <u-button class="confirm-btn"
+                            @click="handleMessageScribe">
+                   消息订阅测试
+                  </u-button>
+                </view>
+        <view class="login-footer">
+          <u-button class="confirm-btn"
+                    @click="sendMessage">
+            发消息
+          </u-button>
+        </view>
 <!--        <view class="login-footer">-->
 <!--          <view class="login-footer-left" @click="register">-->
 <!--            立即注册-->
@@ -113,10 +125,12 @@ export default {
         width: '50rpx',
         height: '50rpx',
       },
+      wxLoginCode: '',
 
     }
   },
   onLoad(options) {
+    this.setLocale()
   },
   onUnload() {
     this.clearSmsInterval()
@@ -125,14 +139,43 @@ export default {
     this.$refs.uForm.setRules(this.rules)
   },
   computed: {
-    eyeImg() {
-      return this.pwdType ? '/static/login/eye.png' : '/static/login/eye-open.png'
-    },
+    // eyeImg() {
+    //   return this.pwdType ? '/static/login/eye.png' : '/static/login/eye-open.png'
+    // },
   },
   methods: {
-    togglePwd() {
-      this.pwdType = this.pwdType ? '' : 'password'
+    sendMessage() {
+      this.$request('user/setVerifyCode', {
+        // this.$request('user/sendSmsCode', {
+        mobile: this.loginParams.mobile,
+      }).then(res => {
+
+      })
     },
+    handleMessageScribe() {
+      const auditTmpId = 'llTbB84LyUnMGYtHNrzQJomvy-6oQkfV3PAhyDwcKIE'
+      uni.requestSubscribeMessage({
+        tmplIds: [auditTmpId],
+        success: (res) => {
+          console.log(res)
+          if (res[auditTmpId] === 'accept') {
+
+          }
+        },
+      })
+    },
+    setLocale() {
+      const locale = uni.getStorageSync('lang')
+      if (locale) {
+        this.$i18n.locale = locale
+      } else {
+        uni.navigateTo({ url: '/pages/chooseLang/index' })
+      }
+    },
+
+    // togglePwd() {
+    //   this.pwdType = this.pwdType ? '' : 'password'
+    // },
     clearSmsInterval() {
       this.interval = null
       this.smsCodeBtnDisabled = false
@@ -141,10 +184,12 @@ export default {
     // 发送验证码并进入倒计时
     getSmsCode() {
       this.hadGetSms = true
-      uni.showLoading()
+      uni.showLoading({ title: 'loading...' })
       this.$request('user/setVerifyCode', {
+      // this.$request('user/sendSmsCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {
+        uni.hideLoading()
         this.$toast(this.$t('login.sms.success'))
         this.smsCodeBtnDisabled = true
         this.codeSeconds = 60
@@ -157,13 +202,9 @@ export default {
         console.log(res)
       }).catch(() => {
         this.clearSmsInterval()
-      }).finally(() => {
         uni.hideLoading()
+      }).finally(() => {
       })
-    },
-    // 返回上一页
-    navBack() {
-      uni.navigateBack()
     },
     // 统一跳转路由
     navTo(url) {
@@ -175,22 +216,24 @@ export default {
       // #endif
 
       // #ifdef MP-WEIXIN
-      handleLoginAuth(null, null, this.toLogin)
+      uni.login({
+        success: (res) => {
+          console.log(res)
+          this.wxLoginCode = res.code
+          handleLoginAuth(this.toLogin, null, null)
+        },
+      })
       // #endif
     },
     // 提交表单
     toLogin() {
       this.$refs.uForm.validate(valid => {
         if (valid) {
-          if (!this.hadGetSms) {
-            this.$toast('请先获取验证码。')
-            return
-          }
-          uni.login({
-            success: (res) => {
-              console.log(res)
-            },
-          })
+          // if (!this.hadGetSms) {
+          //   this.$toast('')
+          //   return
+          // }
+
           this.loading = true
           let origin = 'web'
           let wxUserInfo = ''
@@ -203,39 +246,43 @@ export default {
             deviceId: getDeviceUUID(),
             origin,
             wxUserInfo,
+            wxLoginCode: this.wxLoginCode,
           }).then(res => {
-            const { userInfo, status, product_type } = res;
-            console.log(res)
-            // 用户状态：0 激活 1 关停 2 待激活 3 审核拒绝
-            if (res.type === 'register') {
-              this.$toast('进入待激活状态, 请完善信息以完成注册。')
-              if (product_type === undefined) {
-                uni.navigateTo({ url: '/pages/login/login-info' })
-              }
-            } else if (status === 0) {
-              this.setLocal(res)
-              if (product_type === undefined) {
-                uni.navigateTo({ url: '/pages/login/login-info' })
-              } else {
-                uni.setStorageSync('productType', product_type)
-                uni.switchTab({ url: '/pages/index/index' })
-              }
-            } else if (status === 2) {
-              if (product_type === undefined) {
-                this.setLocal(res)
-                uni.navigateTo({ url: '/pages/login/login-info' })
-              } else {
-                this.$toast('待激活状态, 管理员将尽快进行审核。')
-              }
-            } else if (status === 1) {
-              this.$toast('审核拒绝, 账号已停用。')
-            }
+            this.handleLoginResult(res)
           }).finally(() => {
             this.loading = false
             this.clearSmsInterval()
           })
         }
       })
+    },
+    handleLoginResult(res) {
+      const { userInfo, status, product_type } = res
+      console.log(res)
+      // 用户状态：0 激活 1 关停 2 待激活 3 审核拒绝
+      if (res.type === 'register') {
+        this.$toast('进入待激活状态, 请完善信息以完成注册。')
+        if (product_type === undefined) {
+          uni.navigateTo({ url: '/pages/login/login-info' })
+        }
+      } else if (status === 0) {
+        this.setLocal(res)
+        if (product_type === undefined) {
+          uni.navigateTo({ url: '/pages/login/login-info' })
+        } else {
+          uni.setStorageSync('productType', product_type)
+          uni.switchTab({ url: '/pages/index/index' })
+        }
+      } else if (status === 2) {
+        if (product_type === undefined) {
+          this.setLocal(res)
+          uni.navigateTo({ url: '/pages/login/login-info' })
+        } else {
+          this.$toast('待激活状态, 管理员将尽快进行审核。')
+        }
+      } else if (status === 1) {
+        this.$toast('审核拒绝, 账号已停用。')
+      }
     },
     setLocal(res) {
       uni.setStorageSync('uni_id_token', res.token)

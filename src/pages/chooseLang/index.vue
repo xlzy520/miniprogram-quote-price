@@ -47,9 +47,7 @@ export default {
       this.$i18n.locale = value
       uni.setStorageSync('lang', value)
       uni.showToast({ title: this.$t('choose.success') })
-      setTimeout(() => {
-        uni.switchTab({ url: '/pages/index/index' })
-      }, 500)
+      uni.navigateBack();
     },
   },
 }
@@ -58,10 +56,10 @@ export default {
 <style lang="scss" scoped>
   .card-item{
     &.cn{
-      background-image: url("https://i.loli.net/2021/07/13/P5y4pKq6Bzc28EQ.png");
+      background-image: $card-bg-blue;
     }
     &.en{
-      background-image: url("https://i.loli.net/2021/07/13/pSPz4GJXDtEbUcl.png");
+      background-image: $card-bg-green;
     }
   }
 </style>

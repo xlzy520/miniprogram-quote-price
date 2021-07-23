@@ -2,7 +2,7 @@
 export default {
   onLaunch() {
     // console.log('App Launch')
-    this.setLocale()
+    // this.setLocale()
   },
   onShow() {
     // console.log('App Show')
@@ -11,14 +11,6 @@ export default {
     // console.log('App Hide')
   },
   methods: {
-    setLocale() {
-      const locale = uni.getStorageSync('lang')
-      if (locale) {
-        this.$i18n.locale = locale
-      } else {
-        uni.navigateTo({ url: '/pages/chooseLang/index' })
-      }
-    },
   },
 }
 </script>
