@@ -1,0 +1,43 @@
+{
+	"passwordSecret": "passwordSecret-demo",
+	"tokenSecret": "tokenSecret-demo",
+	"tokenExpiresIn": 72000,
+	"tokenExpiresThreshold": 600,
+	"passwordErrorLimit": 6,
+	"passwordErrorRetryTime": 3600,
+	"autoSetInviteCode": false,
+	"forceInviteCode": false,
+	"app-plus": {
+		"tokenExpiresIn": 2592000,
+		"oauth" : {
+			"weixin" : {
+				"appid" : "weixin appid",
+				"appsecret" : "weixin appsecret"
+			}
+		}
+	},
+	"mp-weixin": {
+		"oauth" : {
+			"weixin" : {
+				"appid" : "wx7f8b189a342eb7ba",
+				"appsecret" : "77847ec99e1dc3006100a53687c1dc8a"
+			}
+		}
+	},
+	"mp-alipay": {
+		"oauth" : {
+			"alipay" : {
+				"appid" : "alipay appid",
+				"privateKey" : "alipay privateKey"
+			}
+		}
+	},
+	"service": {
+		"sms": {
+			"name": "aliyun",
+			"codeExpiresIn": 300,
+			"smsKey": "LTAIUVqGhhJkpW23",
+			"smsSecret": "w8JTHC5vwgDdBNXxuajXsHd0nJm18d"
+		}
+	}
+}

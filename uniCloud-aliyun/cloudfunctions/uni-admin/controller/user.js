@@ -92,6 +92,13 @@ module.exports = class UserController extends Controller {
     } = this.ctx.data
     return this.service.user.setVerifyCode(mobile, code)
   }
+  
+  async sendMessage() {
+    const {
+      uid,
+    } = this.ctx.data
+    return this.service.user.sendTmpMessage(uid)
+  }
 
   async sendSmsCode() {
     const {

@@ -145,7 +145,7 @@ export default {
   },
   methods: {
     sendMessage() {
-      this.$request('user/setVerifyCode', {
+      this.$request('user/sendMessage', {
         // this.$request('user/sendSmsCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {

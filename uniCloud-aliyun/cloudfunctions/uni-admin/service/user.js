@@ -112,20 +112,21 @@ module.exports = class UserService extends Service {
       // if (codeRes) {
       //   console.log(codeRes);
       // }
-      const regInfo = await this.ctx.uniID.loginBySms({
+      const loginResult = await this.ctx.uniID.loginBySms({
         mobile,
         code,
         role: ['user'],
       })
-      await this.loginLog(regInfo, { origin, deviceId }, regInfo.type)
-      if (!regInfo.code) {
-        await this.checkToken(regInfo.token, {
+      await this.loginLog(loginResult, { origin, deviceId }, loginResult.type)
+      if (!loginResult.code) {
+        await this.checkToken(loginResult.token, {
           needPermission: true,
           needUserInfo: false,
         })
-        if (regInfo.type === 'register') {
+        // 注册
+        if (loginResult.type === 'register') {
           let payload = {
-            uid: regInfo.uid,
+            uid: loginResult.uid,
             desc,
             status: 2,
           }
@@ -134,57 +135,54 @@ module.exports = class UserService extends Service {
               code: wxLoginCode,
             })
             const { openid: wx_openid, unionid: wx_unionid } = res
-            // console.log(wxUserInfo)
             payload = {
               ...payload, ...wxUserInfo, origin, wx_unionid, wx_openid,
             }
           }
           await this.ctx.uniID.updateUser(payload)
-          regInfo.userInfo.status = 2
-        } else if (regInfo.userInfo.status !== 0) {
-          if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
-            wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
-            await this.ctx.uniID.updateUser({ ...wxUserInfo, uid: regInfo.uid })
+          loginResult.userInfo.status = 2
+        } else if (loginResult.userInfo.status !== 0) {
+          // 正常登陆
+          if (wxUserInfo.nickName !== loginResult.userInfo.nickName ||
+            wxUserInfo.avatarUrl !== loginResult.userInfo.avatarUrl) {
+            await this.ctx.uniID.updateUser({ ...wxUserInfo, uid: loginResult.uid })
           }
           return {
             code: 0,
-            status: regInfo.userInfo.status,
-            product_type: regInfo.userInfo.product_type,
-            ...regInfo,
+            status: loginResult.userInfo.status,
+            product_type: loginResult.userInfo.product_type,
+            ...loginResult,
           }
         }
       }
 
-      if (regInfo.userInfo) {
-        if (wxUserInfo.nickName !== regInfo.userInfo.nickName ||
-          wxUserInfo.avatarUrl !== regInfo.userInfo.avatarUrl) {
+      if (loginResult.userInfo) {
+        if (wxUserInfo.nickName !== loginResult.userInfo.nickName ||
+          wxUserInfo.avatarUrl !== loginResult.userInfo.avatarUrl) {
           const resWeixin = await this.ctx.uniID.code2SessionWeixin({
             code: wxLoginCode,
           })
           const { openid: wx_openid, unionid: wx_unionid } = resWeixin
-          console.log(wxLoginCode, resWeixin, wx_openid, wx_unionid)
           const updateRes = await this.ctx.uniID.updateUser({
             ...wxUserInfo,
-            uid: regInfo.uid,
+            uid: loginResult.uid,
             wx_unionid,
             wx_openid,
           })
-          console.log(updateRes)
         }
         return {
           code: 0,
-          status: regInfo.userInfo.status,
-          product_type: regInfo.userInfo.product_type,
-          ...regInfo,
+          status: loginResult.userInfo.status,
+          product_type: loginResult.userInfo.product_type,
+          ...loginResult,
         }
       }
 
       return {
         code: 0,
-        ...regInfo,
+        ...loginResult,
       }
     } catch (e) {
-      console.log(e)
       return e
     }
   }
@@ -193,8 +191,55 @@ module.exports = class UserService extends Service {
     const appid = ''
   }
 
-  async sendTmpMessage({ openid, token }) {
-    return 123
+  // 微信小程序通知账号审核结果
+  async sendTmpMessage() {
+  // async sendTmpMessage({ openid, uid }) {
+    const token = await this.getAccessToken()
+    const res = await uniCloud.httpclient.request(
+      `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${token}`, {
+        method: 'POST',
+        contentType: 'json',
+        data: {
+          touser: 'oF8WN5IUyCtUVBPcjBqvYSRODcsM',
+          template_id: 'llTbB84LyUnMGYtHNrzQJomvy-6oQkfV3PAhyDwcKIE',
+          data: {
+            phrase1: {
+              value: '审核中',
+            },
+            thing2: {
+              value: '2015年01月05日 12:30',
+            },
+            thing3: {
+              value: '腾讯微信总部',
+            },
+            time4: {
+              value: '2020-03-20',
+            },
+            phone_number5: {
+              value: '13388888888',
+            },
+          },
+        },
+        dataType: 'json', // 指定返回值为json格式，自动进行parse
+      }
+    )
+    console.log(res.data)
+    return res.data
+  }
+
+  async getAccessToken() {
+    const result = await uniCloud.httpclient.request('https://api.weixin.qq.com/cgi-bin/token', {
+      method: 'GET',
+      contentType: 'json',
+      data: {
+        grant_type: 'client_credential',
+        secret: '77847ec99e1dc3006100a53687c1dc8a',
+        appid: 'wx7f8b189a342eb7ba',
+      },
+      dataType: 'json', // 指定返回值为json格式，自动进行parse
+    })
+    console.log(result.data)
+    return result.data.access_token
   }
 
   async setVerifyCode(mobile, code) {
