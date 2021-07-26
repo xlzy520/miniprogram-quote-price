@@ -11,7 +11,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Install and Build 🔧
+      - name: Install and Build mp-weixin 🔧
         run: |
             npm install && npm run build:mp-weixin
 
@@ -28,3 +28,15 @@ jobs:
         env:
           MINI_APP_ID: ${{ secrets.MINI_APP_ID }}
           MINI_APP_PRIVATE_KEY: ${{ secrets.MINI_APP_PRIVATE_KEY }}
+      - name: Install and Build mp-weixin 🔧
+          run: |
+            npm run build:h5
+
+      - name: Deploy 🚀
+          uses: peaceiris/actions-gh-pages@v3.7.3
+          with:
+            personal_token: ${{ secrets.PERSONAL_TOKEN }}
+            publish_dir: dist
+            commit_message: ${{ github.event.head_commit.message }}
+            # keep_files: false
+            force_orphan: true
