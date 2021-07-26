@@ -10,7 +10,7 @@ export default {
   'search.keyword': '请输入关键字',
 
   'login.smsLogin': '验证码登录',
-  'login.welcome': '欢迎来到XXXXX',
+  'login.welcome': '欢迎来到木材报价采集',
   'login.complete': '完善您的注册信息',
   'login.phone': '手机号',
   'login.desc': '激活申请说明',
@@ -20,7 +20,12 @@ export default {
   'login.sms.success': '获取验证码成功',
   'login.submit': '立即登录',
   'logout.submit': '退出登录',
-
+  
+  'login.tips.fill.info': '待激活状态, 请完善信息以完成注册。',
+  'login.tips.audit': '待激活状态, 管理员将尽快进行审核。',
+  'login.tips.audit.reject': '审核拒绝, 账号已停用。',
+  
+  
   'rules.phone': '手机号码格式不正确',
   'rules.desc': '请输入激活申请说明',
   'rules.product.type': '请选择产品类型',

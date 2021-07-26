@@ -10,7 +10,7 @@ export default {
   'search.keyword': 'keyword',
 
   'login.smsLogin': 'SMS Login',
-  'login.welcome': 'welcome to XXXXX',
+  'login.welcome': 'welcome to WoodOffer',
   'login.complete': 'Complete your registration information',
   'login.phone': 'phone number',
   'login.password': 'password',
@@ -20,6 +20,10 @@ export default {
   'login.sms.success': 'Get SMS Successfully',
   'login.submit': 'login',
   'logout.submit': 'logout',
+
+  'login.tips.fill.info': 'To be activated, please complete the information to complete the registration.',
+  'login.tips.audit': 'To be activated, the administrator will review it as soon as possible.',
+  'login.tips.audit.reject': 'The review is rejected, the account has been disabled.',
 
   'rules.phone': 'Incorrect phone number format',
   'rules.desc': 'Activation application instructions is required',

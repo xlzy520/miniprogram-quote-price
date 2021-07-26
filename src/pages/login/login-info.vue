@@ -14,7 +14,8 @@
       </view>
 		</view>
     <view class="footer">
-      <u-button class="confirm-btn" :disabled="btnLoading" :loading="btnLoading" @click="submit">
+      <u-button class="confirm-btn" :disabled="btnLoading" :loading="btnLoading"
+                @click="submitForm">
         {{$t('common.submit')}}
       </u-button>
     </view>
@@ -73,6 +74,23 @@ export default {
       this.productTypeName = data.title
       this.form.product_type = data.value
     },
+    handleMessageScribe() {
+      const auditTmpId = 'llTbB84LyUnMGYtHNrzQJomvy-6oQkfV3PAhyDwcKIE'
+      uni.requestSubscribeMessage({
+        tmplIds: [auditTmpId],
+        success: (res) => {
+          if (res[auditTmpId] === 'accept') {
+            this.submit()
+          } else {
+            this.$toast('将无法接收到小程序的通知')
+          }
+        },
+      })
+    },
+    submitForm() {
+      this.handleMessageScribe()
+    },
+
     submit() {
       this.$refs.uForm.validate(valid => {
         if (valid) {

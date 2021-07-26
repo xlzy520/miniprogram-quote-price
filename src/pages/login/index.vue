@@ -61,18 +61,18 @@
                   @click="handleLoginClick">
           {{$t('login.submit')}}
         </u-button>
-                <view class="login-footer">
-                  <u-button class="confirm-btn"
-                            @click="handleMessageScribe">
-                   消息订阅测试
-                  </u-button>
-                </view>
-        <view class="login-footer">
-          <u-button class="confirm-btn"
-                    @click="sendMessage">
-            发消息
-          </u-button>
-        </view>
+<!--                <view class="login-footer">-->
+<!--                  <u-button class="confirm-btn"-->
+<!--                            @click="handleMessageScribe">-->
+<!--                   消息订阅测试-->
+<!--                  </u-button>-->
+<!--                </view>-->
+<!--        <view class="login-footer">-->
+<!--          <u-button class="confirm-btn"-->
+<!--                    @click="sendMessage">-->
+<!--            发消息-->
+<!--          </u-button>-->
+<!--        </view>-->
 <!--        <view class="login-footer">-->
 <!--          <view class="login-footer-left" @click="register">-->
 <!--            立即注册-->
@@ -177,9 +177,9 @@ export default {
     //   this.pwdType = this.pwdType ? '' : 'password'
     // },
     clearSmsInterval() {
+      clearInterval(this.interval)
       this.interval = null
       this.smsCodeBtnDisabled = false
-      clearInterval(this.interval)
     },
     // 发送验证码并进入倒计时
     getSmsCode() {
@@ -189,7 +189,7 @@ export default {
       // this.$request('user/sendSmsCode', {
         mobile: this.loginParams.mobile,
       }).then(res => {
-        uni.hideLoading()
+        // uni.hideLoading()
         this.$toast(this.$t('login.sms.success'))
         this.smsCodeBtnDisabled = true
         this.codeSeconds = 60
@@ -261,7 +261,7 @@ export default {
       console.log(res)
       // 用户状态：0 激活 1 关停 2 待激活 3 审核拒绝
       if (res.type === 'register') {
-        this.$toast('进入待激活状态, 请完善信息以完成注册。')
+        this.$toast(this.$t('login.tips.fill.info'))
         if (product_type === undefined) {
           uni.navigateTo({ url: '/pages/login/login-info' })
         }
@@ -278,10 +278,10 @@ export default {
           this.setLocal(res)
           uni.navigateTo({ url: '/pages/login/login-info' })
         } else {
-          this.$toast('待激活状态, 管理员将尽快进行审核。')
+          this.$toast(this.$t('login.tips.audit'))
         }
       } else if (status === 1) {
-        this.$toast('审核拒绝, 账号已停用。')
+        this.$toast(this.$t('login.tips.audit.reject'))
       }
     },
     setLocal(res) {
